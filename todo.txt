@@ -1,0 +1,22 @@
+Two modes: play, setup.  In setup mode players can remove, add, move
+pieces freely. When mode switches to play, a branch should be created
+in the game flow graph.
+
+Game flow graph can be clickable. When clicked, game continues from
+there on a new branch. Old branch stays.
+
+Hovering on game flow graph will temporarily display that
+position.
+
+Multiple game flow selections. Creation of multiple games. Saving and
+loading games with cookies.
+
+Highlight last move (piece and square it came from. Also find a way to
+show the captured piece if exists.
+
+Move pieces my first clicking to the square piece stays, and than the
+destination square. Don't show possible destination squares.
+
+Use css absolute and relative position, and animation.
+
+Move games to local drive from cookies.

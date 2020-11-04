@@ -1,0 +1,24 @@
+:root {
+    --board-size: 600px;
+}
+
+#board {
+}
+
+table.board {
+    border-collapse: collapse;
+}
+
+.square {
+    width: calc(var(--board-size) / 8);
+    height: calc(var(--board-size) / 8);
+    text-align: center;
+}
+
+.square-light {
+    background-color: #5555dd;
+}
+
+.square-dark {
+    background-color: #222200;
+}
