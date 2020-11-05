@@ -1,0 +1,23 @@
+{
+  "name": "chess",
+  "version": "1.0.0",
+  "description": "Web based chess GUI with analysis features. Fully front-end.",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canaknesil/chess.git"
+  },
+  "author": "Can Aknesil",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/canaknesil/chess/issues"
+  },
+  "homepage": "https://github.com/canaknesil/chess#readme",
+  "dependencies": {
+    "stockfish": "^10.0.2",
+    "velocity-animate": "^1.5.2"
+  }
+}
