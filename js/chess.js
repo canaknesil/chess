@@ -24,14 +24,14 @@ function make_empty_position() {
 }
 
 function make_start_position() {
-    return [[null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, "BK"],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null]];
+    return [["WR", "WP", null, null, null, null, "BP", "BR"],
+	    ["WN", "WP", null, null, null, null, "BP", "BN"],
+	    ["WB", "WP", null, null, null, null, "BP", "BB"],
+	    ["WQ", "WP", null, null, null, null, "BP", "BQ"],
+	    ["WK", "WP", null, null, null, null, "BP", "BK"],
+	    ["WB", "WP", null, null, null, null, "BP", "BB"],
+	    ["WN", "WP", null, null, null, null, "BP", "BN"],
+	    ["WR", "WP", null, null, null, null, "BP", "BR"]];
 }
 
 function position_to_string(position) {
@@ -118,7 +118,7 @@ var games = [];
 var selected_game = null;
 
 //
-// INTERFACE TO GUI
+// CONTROLLER
 //
 
 var new_game_id_count = 0;
@@ -130,6 +130,10 @@ function new_game() {
     gui_update_from_position(position);
 }
 
+function get_current_position() {
+    return game_get_position(selected_game);
+}
+
 //
 // GUI
 //
@@ -137,14 +141,22 @@ function new_game() {
 var gui_board = document.getElementById("board");
 
 var gui_position = make_8x8_null_array();
+var gui_orientation = "W";
+
+var gui_selected_piece = null; // Indices of square selected piece belongs to.
 
 
 function gui_new_piece(piece_type, x, y) {
-    var new_piece = document.createElement("img");
-    new_piece.src = "/images/pieces/classic/" + piece_type + ".svg";
+    var new_piece = document.createElement("div");
+    var img = document.createElement("img");
+    new_piece.appendChild(img);
+
+    img.src = "/images/pieces/classic/" + piece_type + ".svg";
+    img.classList.add("piece-img");
     new_piece.classList.add("piece");
     new_piece.classList.add(piece_type);
     new_piece.setAttribute("piece_type", piece_type);
+
     gui_board.appendChild(new_piece);
     gui_move_piece(new_piece, x, y);
     
@@ -153,18 +165,22 @@ function gui_new_piece(piece_type, x, y) {
 Velocity.defaults.fpsLimit = 30; // Default is 60. It must be factors of 60.
 
 // This removes the piece at the destination square, if exists.
-function gui_move_piece(piece, x, y) {
+function gui_move_piece(piece, x, y, remove=true) {
     old_piece = gui_position[x][y];
-    if (old_piece != null) {
-	gui_remove_piece(x, y);
+    if (remove) {
+	if (old_piece != null) {
+	    gui_remove_piece(x, y);
+	}
     }
     var square_size = document.getElementById("a1").getBoundingClientRect().width;
-    Velocity(piece, {left: x * square_size,
-		     top: (7 - y) * square_size},
+    var board_x = x;
+    var board_y = (gui_orientation == "W" ? y : 7 - y);
+    Velocity(piece, {left: board_x * square_size,
+		     top: (7 - board_y) * square_size},
 	     {duration: 400,
 	      complete: function(elements, activeCall) {
-		  piece.style.setProperty("left", "calc(" + x + " * var(--square-size))");
-		  piece.style.setProperty("top", "calc((7 - " + y + ") * var(--square-size))");
+		  piece.style.setProperty("left", "calc(" + board_x + " * var(--square-size))");
+		  piece.style.setProperty("top", "calc((7 - " + board_y + ") * var(--square-size))");
 	      }});
     
     gui_position[x][y] = piece;
@@ -196,17 +212,64 @@ function gui_update_from_position(position) {
     }
 }
 
+function gui_select_piece(x, y) {
+    piece = gui_position[x][y];
+    if (piece != null) {
+	gui_unselect_piece();
+	piece.classList.add("selected");
+	gui_selected_piece = [x, y];
+    }
+}
+
+function gui_unselect_piece() {
+    if (gui_selected_piece != null) {
+	var [x, y] = gui_selected_piece;
+	element = gui_position[x][y];
+	element.classList.remove("selected");
+    }
+    gui_select_piece = null;
+}
+
+function gui_update() {
+    // Update piece positions
+    for (var i=0; i<8; i++) {
+	for (var j=0; j<8; j++) {
+	    if (gui_position[i][j] != null) {
+		piece = gui_position[i][j];
+		gui_move_piece(piece, i, j, remove=false);
+	    }
+	}
+    }
+}
+
+
+// Input from user
+
 function new_game_onclick() {
     new_game();
 }
 
 function square_onclick(id) {
+    if (gui_orientation == "B") {
+	var file = id.charCodeAt(0) - 'a'.charCodeAt();
+	var rank = id.charCodeAt(1) - '1'.charCodeAt();
+	file = 7 - file;
+	rank = 7 - rank;
+	file = String.fromCharCode(file + 'a'.charCodeAt());
+	rank = String.fromCharCode(rank + '1'.charCodeAt());
+	id = file + rank;
+    }
     console.log(id + " clicked.");
+}
+
+function toggle_orientation_onclick() {
+    if (gui_orientation == "W")
+	gui_orientation = "B";
+    else
+	gui_orientation = "W";
+    gui_update();
 }
 
 // Test
 new_game_onclick()
-position = game_get_position(selected_game);
-gui_update_from_position(position);
-gui_update_from_position(position);
 
