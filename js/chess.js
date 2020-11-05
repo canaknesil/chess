@@ -283,10 +283,3 @@ function toggle_orientation_onclick() {
 // Test
 new_game_onclick()
 
-var stockfish = new Worker("/js/stockfish.asm.js");
-
-stockfish.onmessage = function onmessage(event) {
-    console.log(event.data);
-};
-
-stockfish.postMessage("go depth 5");
