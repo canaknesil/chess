@@ -1,8 +1,19 @@
 :root {
-    --board-size: 600px;
+    --board-size: 70vh;
+    --square-size: calc(var(--board-size) / 8);
 }
 
+body {
+    height: calc(100vh - 16px);
+    margin: 8px;
+    background-color: #222222
+}
+
+
+/* board */
+
 #board {
+    position: relative;
 }
 
 table.board {
@@ -10,15 +21,33 @@ table.board {
 }
 
 .square {
-    width: calc(var(--board-size) / 8);
-    height: calc(var(--board-size) / 8);
-    text-align: center;
+    width: var(--square-size);
+    height: var(--square-size);
+    padding: 0px;
 }
 
 .square-light {
-    background-color: #5555dd;
+    background-color: #ddddbb;
 }
 
 .square-dark {
-    background-color: #222200;
+    background-color: #779900;
+}
+
+
+/* pieces */
+
+.piece {
+    position: absolute;
+    width: var(--square-size);
+    height: var(--square-size);
+    /* --board-x: 3; */
+    /* --board-y: 3; /\* these variables are modified from js. *\/ */
+    /* left: calc(var(chessboardx) * var(--square-size)); */
+    /* top: calc((7 - var(chessboardy)) * var(--square-size)); */
+    pointer-events: none; /* Let the mouse click to the square by ignoring pieces. */
+}
+
+.BK {
+    
 }

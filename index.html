@@ -2,97 +2,107 @@
 <html>
   <head>
 
+    <meta charset="UTF-8">
+
     <title>Chess</title>
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
     
-    <link rel="stylesheet" href="css/board.css">
-    
+    <link rel="stylesheet" href="/css/board.css">
+
   </head>
   <body>
 
-    <div id="board">
-      <table class="board">
-	<tr>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	</tr>
-	<tr>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	</tr>
-	<tr>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	</tr>
-	<tr>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	</tr>
-	<tr>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	</tr>
-	<tr>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	</tr>
-	<tr>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	</tr>
-	<tr>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	  <td class="square square-dark "></td>
-	  <td class="square square-light"></td>
-	</tr>
-      </table>
+    <div>
+      <div id="board">
+	<table class="board">
+	  <tr class="board">
+	    <td id="a8" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="b8" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="c8" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="d8" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="e8" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="f8" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="g8" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="h8" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	  </tr>
+	  <tr class="board">
+	    <td id="a7" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="b7" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="c7" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="d7" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="e7" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="f7" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="g7" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="h7" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	  </tr>
+	  <tr class= "board">
+	    <td id="a6" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="b6" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="c6" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="d6" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="e6" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="f6" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="g6" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="h6" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	  </tr>
+	  <tr class= "board">
+	    <td id="a5" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="b5" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="c5" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="d5" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="e5" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="f5" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="g5" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="h5" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	  </tr>
+	  <tr class= "board">
+	    <td id="a4" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="b4" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="c4" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="d4" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="e4" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="f4" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="g4" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="h4" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	  </tr>
+	  <tr class= "board">
+	    <td id="a3" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="b3" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="c3" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="d3" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="e3" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="f3" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="g3" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="h3" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	  </tr>
+	  <tr class= "board">
+	    <td id="a2" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="b2" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="c2" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="d2" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="e2" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="f2" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="g2" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="h2" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	  </tr>
+	  <tr class= "board">
+	    <td id="a1" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="b1" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="c1" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="d1" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="e1" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="f1" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	    <td id="g1" class="board square square-dark " onClick="square_onclick(this.id)"></td>
+	    <td id="h1" class="board square square-light" onClick="square_onclick(this.id)"></td>
+	  </tr>
+	</table>
+      </div>
     </div>
-    
+
+    <button onclick="new_game_onclick()">New Game</button>
+
+    <script src="/js/velocity.min.js"></script>
+    <script src="/js/chess.js"></script> 
+
   </body>
 </html> 

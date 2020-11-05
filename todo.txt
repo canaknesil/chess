@@ -17,6 +17,4 @@ show the captured piece if exists.
 Move pieces my first clicking to the square piece stays, and than the
 destination square. Don't show possible destination squares.
 
-Use css absolute and relative position, and animation.
-
 Move games to local drive from cookies.
