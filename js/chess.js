@@ -134,6 +134,15 @@ function get_current_position() {
     return game_get_position(selected_game);
 }
 
+function click_square(x, y) {
+    console.log([x, y] + " clicked.");
+    // Possible actions:
+    // select piece
+    // move piece
+    // put piece
+    // etc.
+}
+
 //
 // GUI
 //
@@ -227,7 +236,7 @@ function gui_unselect_piece() {
 	element = gui_position[x][y];
 	element.classList.remove("selected");
     }
-    gui_select_piece = null;
+    gui_selected_piece = null;
 }
 
 function gui_update() {
@@ -250,16 +259,17 @@ function new_game_onclick() {
 }
 
 function square_onclick(id) {
+    var file = id.charCodeAt(0) - 'a'.charCodeAt();
+    var rank = id.charCodeAt(1) - '1'.charCodeAt();
     if (gui_orientation == "B") {
-	var file = id.charCodeAt(0) - 'a'.charCodeAt();
-	var rank = id.charCodeAt(1) - '1'.charCodeAt();
 	file = 7 - file;
 	rank = 7 - rank;
-	file = String.fromCharCode(file + 'a'.charCodeAt());
-	rank = String.fromCharCode(rank + '1'.charCodeAt());
-	id = file + rank;
+	var file_letter = String.fromCharCode(file + 'a'.charCodeAt());
+	var rank_number = String.fromCharCode(rank + '1'.charCodeAt());
+	id = file_letter + rank_number;
     }
-    console.log(id + " clicked.");
+    //console.log(id + " " + [file, rank] + " clicked.");
+    click_square(file, rank);
 }
 
 function toggle_orientation_onclick() {
