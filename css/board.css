@@ -8,29 +8,30 @@ body {
     height: calc(100vh - 16px);
     width: calc(100vw - 16px);
     margin: 8px;
+    overflow: hidden;
     background-color: var(--body-background-color);
 }
 
 
 /* board */
 
-#board {}
+#board {
+    width: 80%;
+    height: 80%;
+    display: flex;
+}
 
 .square-light {
-    background-color: var(--light-square-background-color);
+    fill: var(--light-square-background-color);
 }
 
 .square-dark {
-    background-color: var(--dark-square-background-color);
+    fill: var(--dark-square-background-color);
 }
 
 
 /* pieces */
 
 .piece {
-    pointer-events: none; /* Let the mouse click to the square by ignoring pieces. */
-}
-
-.piece.selected {
-    background-color: yellow; /* This doesn't have to be background. It can be an image with brackets at corners. */
+    /* pointer-events: none; /\* Let the mouse click to the square by ignoring pieces. *\/ */
 }

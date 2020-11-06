@@ -147,28 +147,65 @@ function click_square(x, y) {
 // GUI
 //
 
-var gui_board = document.getElementById("board");
+
+var svg_ns = "http://www.w3.org/2000/svg"
+var board_svg;
 
 var gui_position = make_8x8_null_array();
 var gui_orientation = "W";
 
-var gui_selected_piece = null; // Indices of square selected piece belongs to.
+
+// Draw chessboard
+(function() {
+    var board = document.getElementById("board");
+    board_svg = document.createElementNS(svg_ns, "svg");
+    
+    board_svg.setAttribute("viewBox", "0 0 800 800");
+    board_svg.setAttribute("id", "chessboard-svg");
+    
+    for (var x=0; x<8; x++) {
+	for (var y=0; y<8; y++) {
+	    var square = document.createElementNS(svg_ns, "rect");
+	    
+	    square.setAttribute("width", "100");
+	    square.setAttribute("height", "100");
+	    square.setAttribute("x", x * 100);
+	    square.setAttribute("y", y * 100);
+	    
+	    if ((x + y) % 2 != 0)
+		square.classList.add("square-dark");
+	    else
+		square.classList.add("square-light");
+	    
+	    var file = String.fromCharCode(x + 'a'.charCodeAt());
+	    var rank = String.fromCharCode(7 - y + '1'.charCodeAt());
+	    var id = file + rank;
+	    square.setAttribute("id", id);
+	    
+	    square.setAttribute("onclick", "square_onclick(this.id)");
+	    
+	    board_svg.appendChild(square);
+	}
+    }
+    
+    board.appendChild(board_svg);
+})();
 
 
 function gui_new_piece(piece_type, x, y) {
-    var new_piece = document.createElement("div");
-    var img = document.createElement("img");
-    new_piece.appendChild(img);
-
-    img.src = "/images/pieces/classic/" + piece_type + ".svg";
-    img.classList.add("piece-img");
-    new_piece.classList.add("piece");
-    new_piece.classList.add(piece_type);
-    new_piece.setAttribute("piece_type", piece_type);
-
-    gui_board.appendChild(new_piece);
-    gui_move_piece(new_piece, x, y);
+    var img = document.createElementNS(svg_ns, "image");
+    img.setAttribute("href", "/images/pieces/classic/" + piece_type + ".svg");
+    img.setAttribute("x", 4 * 100); // Temporary. Will be changed immediately after creation.
+    img.setAttribute("y", 4 * 100);
+    img.setAttribute("height", "100");
+    img.setAttribute("width", "100");
     
+    img.classList.add("piece");
+    img.classList.add(piece_type);
+    img.setAttribute("piece_type", piece_type);
+
+    board_svg.appendChild(img);
+    gui_move_piece(img, x, y);
 }
 
 Velocity.defaults.fpsLimit = 30; // Default is 60. It must be factors of 60.
@@ -181,16 +218,17 @@ function gui_move_piece(piece, x, y, remove=true) {
 	    gui_remove_piece(x, y);
 	}
     }
-    var square_size = document.getElementById("a1").getBoundingClientRect().width;
+    var square_size = 100;
     var board_x = x;
     var board_y = (gui_orientation == "W" ? y : 7 - y);
-    Velocity(piece, {left: board_x * square_size,
-		     top: (7 - board_y) * square_size},
-	     {duration: 400,
-	      complete: function(elements, activeCall) {
-		  piece.style.setProperty("left", "calc(" + board_x + " * var(--square-size))");
-		  piece.style.setProperty("top", "calc((7 - " + board_y + ") * var(--square-size))");
-	      }});
+    Velocity(piece, {x: board_x * square_size,
+		     y: (7 - board_y) * square_size},
+	     {duration: 400
+	      // ,complete: function(elements, activeCall) {
+	      // 	  piece.style.setProperty("left", "calc(" + board_x + " * var(--square-size))");
+	      // 	  piece.style.setProperty("top", "calc((7 - " + board_y + ") * var(--square-size))");
+	      // }
+	     });
     
     gui_position[x][y] = piece;
 }
@@ -221,22 +259,29 @@ function gui_update_from_position(position) {
     }
 }
 
-function gui_select_piece(x, y) {
-    piece = gui_position[x][y];
-    if (piece != null) {
-	gui_unselect_piece();
-	piece.classList.add("selected");
-	gui_selected_piece = [x, y];
-    }
+// function gui_select_piece(x, y) {
+//     piece = gui_position[x][y];
+//     if (piece != null) {
+// 	gui_unselect_piece();
+// 	piece.classList.add("selected");
+// 	gui_selected_piece = [x, y];
+//     }
+// }
+
+// function gui_unselect_piece() {
+//     if (gui_selected_piece != null) {
+// 	var [x, y] = gui_selected_piece;
+// 	element = gui_position[x][y];
+// 	element.classList.remove("selected");
+//     }
+//     gui_selected_piece = null;
+// }
+
+function gui_mark_square(x, y) {
+    // [x, y] -> a4, find by id.
 }
 
-function gui_unselect_piece() {
-    if (gui_selected_piece != null) {
-	var [x, y] = gui_selected_piece;
-	element = gui_position[x][y];
-	element.classList.remove("selected");
-    }
-    gui_selected_piece = null;
+function gui_unmark_square(x, y) {
 }
 
 function gui_update() {
@@ -282,4 +327,5 @@ function toggle_orientation_onclick() {
 
 // Test
 new_game_onclick()
+gui_mark_square(1, 1);
 
