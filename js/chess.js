@@ -141,6 +141,12 @@ function click_square(x, y) {
     // move piece
     // put piece
     // etc.
+
+    // Temporary behavior
+    if (gui_is_square_marked(x, y))
+	gui_unmark_square(x, y)
+    else
+	gui_mark_square(x, y)
 }
 
 //
@@ -277,11 +283,25 @@ function gui_update_from_position(position) {
 //     gui_selected_piece = null;
 // }
 
+
+// TODO: Do marking more efficiently.
+// Square elements can be kept after creation to avoid fething every time.
 function gui_mark_square(x, y) {
-    // [x, y] -> a4, find by id.
+    var id = position_index_to_name(x, y);
+    var square = document.getElementById(id);
+    square.classList.add("marked");
 }
 
 function gui_unmark_square(x, y) {
+    var id = position_index_to_name(x, y);
+    var square = document.getElementById(id);
+    square.classList.remove("marked");
+}
+
+function gui_is_square_marked(x, y) {
+    var id = position_index_to_name(x, y);
+    var square = document.getElementById(id);
+    return square.classList.contains("marked");
 }
 
 function gui_update() {

@@ -2,6 +2,7 @@
     --body-background-color: #222222;
     --light-square-background-color: #ddddbb;
     --dark-square-background-color: #779900;
+    --square-mark-color: yellow;
 }
 
 body {
@@ -29,9 +30,13 @@ body {
     fill: var(--dark-square-background-color);
 }
 
+.marked {
+    fill: var(--square-mark-color);
+}
+
 
 /* pieces */
 
 .piece {
-    /* pointer-events: none; /\* Let the mouse click to the square by ignoring pieces. *\/ */
+    pointer-events: none; /* Let the mouse click to the square by ignoring pieces. */
 }
