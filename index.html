@@ -16,12 +16,24 @@
       <!-- drawn by chess.js -->
     </div>
 
-    <button onclick="new_game_onclick()">New Game</button>
-    <button onclick="toggle_orientation_onclick()">Toggle Orientation</button>
+    <button id="new_game_button">New Game</button>
+    <button id="toggle_orientation_button">Toggle Orientation</button>
 
     <script src="/js/velocity.min.js"></script>
-    <!-- <script src="/js/stockfish-driver.js"></script> -->
-    <script src="/js/chess.js"></script>
+    <script src="/js/controller.js" type="module"></script>
 
+    <script type="module">
+      // Adding event listeners this way because functions are defined in another module.
+      import {
+	  new_game_onclick,
+	  toggle_orientation_onclick,
+      } from "/js/view.js";
+      
+      document.getElementById("new_game_button").addEventListener("click", new_game_onclick);
+      document.getElementById("toggle_orientation_button").addEventListener("click", toggle_orientation_onclick);
+    </script>
+
+    <script src="/js/test.js" type="module"></script>
+    
   </body>
 </html> 

@@ -165,4 +165,5 @@ stockfish.postMessage("go depth 4");
 
 // ADDITIONAL OPTIONS
 // Use MultiPV option for multi-best line or k-best line mode.
-// Use UCI_LimitStrength to limit the strenth when playing against humans. 
+// Use UCI_LimitStrength to limit the strenth when playing against humans.
+
