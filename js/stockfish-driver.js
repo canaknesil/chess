@@ -122,8 +122,47 @@ stockfish.onmessage = function onmessage(event) {
     if (msg_obj != null) {
 	console.log(msg_obj);
     }
+    // Use a producer consumer queue. Consuming commands should be handled syncronously.
 };
 
+
+
+// INITIALIZATION
+// If possible initialization should be performed once. New games should be started via ucinewgame command.
+
 stockfish.postMessage("uci");
-stockfish.postMessage("isready");
+// get id
+// get options (if any)
+// get uciok (required)
+// set options
+stockfish.postMessage("isready"); // required before duing any caoculation to make sure initialization is finished.
+// get readyok
+
+
+// GAME INITIALIZATION
+// For position jumps within game, don't perform game initialization.
+// Perform game initialization to start a new game with the same engine. The old game will not be available (?).
+// For multiple concurrent games, start new engine instance. 
+
+stockfish.postMessage("ucinewgame");
+stockfish.postMessage("isready"); // required
+// get readyok
+// position [fen <fenstring> | startpos ]  moves <move1> .... <movei>
+
+
+// ANALYTICS
+// position
+// go
+// stop
+// ponderhit (Send this if the user played the move that the engine is pondering on. The engine will continue the search in normal mode. This replaces the position command for a single move (?).)
 stockfish.postMessage("go depth 4");
+
+
+// QUIT
+
+// quit
+
+
+// ADDITIONAL OPTIONS
+// Use MultiPV option for multi-best line or k-best line mode.
+// Use UCI_LimitStrength to limit the strenth when playing against humans. 
