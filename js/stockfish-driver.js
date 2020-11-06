@@ -1,8 +1,116 @@
 
 
+// Returning null means command should be ignored. It is not an error.
 function sfd_parse_message(msg) {
-    tokens = msg.split(" ");
-    return tokens;
+    function car(str) {
+	if (str.indexOf(" ") == -1) // single word
+	    return str;
+	else
+	    return str.substr(0,str.indexOf(' '));
+    }
+    function cdr(str) {
+	if (str.indexOf(" ") == -1)
+	    return "";
+	else
+	    return str.substr(str.indexOf(' ')+1);
+    }
+
+    if (msg.length == 0)
+	return null;
+
+    var command = car(msg);
+    var msg_obj = {command: command};
+    var original_msg = msg;
+    msg = cdr(msg);
+
+    function parsing_error(error_msg = "") {
+	console.warn("Parsing error (" + error_msg + "): " + original_msg);
+	return null;
+    }
+
+    if (command == "id") {
+	var attr = car(msg);
+	if (attr == "name" || attr == "author") {
+	    msg_obj[attr] = cdr(msg); msg = "";
+	} else
+	    return parsing_error();
+    } else if (command == "uciok" || command == "readyok") {
+	// single word msg
+    } else if (command == "bestmove") {
+	msg_obj["bestmove"] = car(msg); msg = cdr(msg);
+	if (msg != "") {
+	    var word = car(msg); msg = cdr(msg);
+	    if (word == "ponder") {
+		msg_obj["ponder"] = car(msg); msg = cdr(msg);
+	    } else
+		return parsing_error();
+	}
+    } else if (command == "copyprotection" || command == "registration") {
+	var status = car(msg); msg = cdr(msg);
+	if (status == "ok" || status == "error" || status == "checking")
+	    msg_obj["status"] = status;
+	else
+	    return parsing_error();
+    } else if (command == "info") {
+	while (msg != "") {
+	    var c2 = car(msg); msg = cdr(msg);
+	    if (c2 == "depth" ||
+		c2 == "seldepth" ||
+		c2 == "time" ||
+		c2 == "nodes" ||
+		c2 == "multipv" ||
+		c2 == "currmove" ||
+		c2 == "currmovenumber" ||
+		c2 == "hashfull" ||
+		c2 == "nps" ||
+		c2 == "tbhits" ||
+		c2 == "sbhits" ||
+		c2 == "cpuload") {
+		msg_obj[c2] = car(msg); msg = cdr(msg);
+	    } else if (c2 == "pv" || c2 == "refutation") {
+		idx = msg.indexOf("bmc");
+		if (idx != -1) {
+		    bmc_msg = msg.substr(idx);
+		    if (car(bmc_msg) == "bmc") {
+			msg_obj["bmc"] = cdr(bmc_msg);
+		    }
+		    msg = msg.substr(0, idx - 1);
+		}
+		msg_obj[c2] = msg.split(); msg = "";
+	    } else if (c2 == "score") {
+		var c3 = car(msg); msg = cdr(msg);
+		if (c3 == "cp" || c3 == "mate") {
+		    msg_obj[c3] = car(msg); msg = cdr(msg);
+		} else if (c3 == "lowerbound" || c3 == "upperbound") {
+		    msg_obj[c3] = true;
+		} else
+		    return parsing_error();
+	    } else if (c2 == "string") {
+		msg_obj[c2] = msg;
+	    } else if (c2 == "currline") {
+		if (msg[0] >= '0' && msg[0] <= '9') {
+		    msg_obj["cpunr"] = car(msg); msg = cdr(msg);
+		}
+		msg_obj[c2] = msg.split(); msg = "";
+	    } else
+		return parsing_error("c2: " + c2);
+	}
+    } else if (command == "option") {
+	msg_obj["option_str"] = original_msg; msg = ""
+	console.warn("Option parsing not implemented.");
+    } else if (command == "Stockfish.js") {
+	// This is the start message. Ignore it.
+	return null;
+    } else {
+	console.warn("Unknown UCI command: " + original_msg);
+	return null;
+    }
+
+    if (msg.length != 0) {
+	console.warn("Part of the command \"" + command + "\" is not parsed: " + msg);
+    }
+    
+    return msg_obj;
 }
 
 
@@ -10,7 +118,12 @@ function sfd_parse_message(msg) {
 var stockfish = new Worker("/js/stockfish.asm.js");
 
 stockfish.onmessage = function onmessage(event) {
-    console.log(sfd_parse_message(event.data));
+    msg_obj = sfd_parse_message(event.data);
+    if (msg_obj != null) {
+	console.log(msg_obj);
+    }
 };
 
-stockfish.postMessage("go depth 5");
+stockfish.postMessage("uci");
+stockfish.postMessage("isready");
+stockfish.postMessage("go depth 4");
