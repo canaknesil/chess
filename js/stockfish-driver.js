@@ -114,67 +114,51 @@ function sfd_parse_message(msg) {
 }
 
 
-// function sleep() {
-//     return new Promise(resolve => setTimeout(resolve, ms));
-// }
-
-
-// class Queue {
-//     constructor() { this.list = []; }
-//     push(item) {
-// 	this.list.push(item);
-//     }
-//     async async_pop(func) {
-// 	while (this.length() == 0)
-// 	    await sleep(300);
-// 	return func(this.list.shift(item));
-//     }
-//     length() { return this.list.length; }
-//     empty() { return this.list.length == 0; }
-// }
-
-
+// TODO: Reimplement with promise chain. 
 
 class Stockfish {
-    // get_expected_command(cmd) {
-    // 	var msg = this.queue.pop();
-    // 	console.log(msg);
-    // 	if (msg.command == cmd)
-    // 	    return msg;
-    // 	else
-    // 	    // Ignore this message.
-    // 	    return null;
-    // }
-    post(msg) {
+    post(msg, onmessage) {
+	console.log("SFD POST (" + this.engine_id + "): " + msg + "");
+	var this_obj = this;
+	this.engine.onmessage = function outer_onmessage(event) {
+	    console.log("SFD RECEIVE (" + this_obj.engine_id + "): " + event.data);
+	    var msg_obj = sfd_parse_message(event.data);
+	    if (msg_obj != null)
+		onmessage(msg_obj);
+	    else
+		console.log("Ignoring msg.");
+	};
 	this.engine.postMessage(msg);
     }
-    constructor() {
-	//this.queue = new Queue();
+    
+    constructor(engine_id) {
+	this.engine_id = engine_id;
 	this.engine = new Worker("/js/stockfish.asm.js");
-
-	//var q = this.queue;
-	this.engine.onmessage = function onmessage(event) {
-	    var msg_obj = sfd_parse_message(event.data);
-	    if (msg_obj != null) {
-		//q.push(msg_obj);
-		console.log(msg_obj);
-	    }
-	};
-
+	var engine_obj = this;
+	
 	// INITIALIZATION
 	// If possible initialization should be performed once. New games should be started via ucinewgame command.
 	
-	this.post("uci");
-	// get id
-	//var msg = this.get_expected_command("id");
-	//console.log(msg);
-	// get options (if any)
-	// get uciok (required)
+	this.post("uci", function handle_msg_uci(msg) {
+	    console.log("handle_msg_uci");
+	    console.log(msg);
+	    if (msg.command == "id") {
+		if (msg.hasOwnProperty("name"))
+		    engine_obj.name = msg.name;
+		if (msg.hasOwnProperty("author"))
+		    engine_obj.author = msg.author;
+	    }
+	    // get id
+	    // get options (if any)
+	    // get uciok (required)	    
+	});
+	console.log(this.name);
+	console.log(this.author);
 	
 	// set options
-	this.post("setoption name MultiPV value 3");
+	//this.post("setoption name MultiPV value 3");
 	
-	this.post("isready"); // required before duing any caoculation to make sure initialization is finished.
+	//this.post("isready"); // required before duing any caoculation to make sure initialization is finished.
 	// get readyok
 	
 	
@@ -183,8 +167,8 @@ class Stockfish {
 	// Perform game initialization to start a new game with the same engine. The old game will not be available (?).
 	// For multiple concurrent games, start new engine instance. 
 	
-	this.post("ucinewgame");
-	this.post("isready"); // required
+	//this.post("ucinewgame");
+	//this.post("isready"); // required
 	// get readyok
 	
     }
