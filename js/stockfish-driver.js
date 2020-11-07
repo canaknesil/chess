@@ -68,9 +68,9 @@ function sfd_parse_message(msg) {
 		c2 == "cpuload") {
 		msg_obj[c2] = car(msg); msg = cdr(msg);
 	    } else if (c2 == "pv" || c2 == "refutation") {
-		idx = msg.indexOf("bmc");
+		var idx = msg.indexOf("bmc");
 		if (idx != -1) {
-		    bmc_msg = msg.substr(idx);
+		    var bmc_msg = msg.substr(idx);
 		    if (car(bmc_msg) == "bmc") {
 			msg_obj["bmc"] = cdr(bmc_msg);
 		    }
@@ -114,56 +114,139 @@ function sfd_parse_message(msg) {
 }
 
 
+// function sleep() {
+//     return new Promise(resolve => setTimeout(resolve, ms));
+// }
 
-var stockfish = new Worker("/js/stockfish.asm.js");
 
-stockfish.onmessage = function onmessage(event) {
-    msg_obj = sfd_parse_message(event.data);
-    if (msg_obj != null) {
-	console.log(msg_obj);
+// class Queue {
+//     constructor() { this.list = []; }
+//     push(item) {
+// 	this.list.push(item);
+//     }
+//     async async_pop(func) {
+// 	while (this.length() == 0)
+// 	    await sleep(300);
+// 	return func(this.list.shift(item));
+//     }
+//     length() { return this.list.length; }
+//     empty() { return this.list.length == 0; }
+// }
+
+
+
+class Stockfish {
+    // get_expected_command(cmd) {
+    // 	var msg = this.queue.pop();
+    // 	console.log(msg);
+    // 	if (msg.command == cmd)
+    // 	    return msg;
+    // 	else
+    // 	    // Ignore this message.
+    // 	    return null;
+    // }
+    post(msg) {
+	this.engine.postMessage(msg);
     }
-    // Use a producer consumer queue. Consuming commands should be handled syncronously.
-};
+    constructor() {
+	//this.queue = new Queue();
+	this.engine = new Worker("/js/stockfish.asm.js");
+
+	//var q = this.queue;
+	this.engine.onmessage = function onmessage(event) {
+	    var msg_obj = sfd_parse_message(event.data);
+	    if (msg_obj != null) {
+		//q.push(msg_obj);
+		console.log(msg_obj);
+	    }
+	};
+
+	// INITIALIZATION
+	// If possible initialization should be performed once. New games should be started via ucinewgame command.
+	
+	this.post("uci");
+	// get id
+	//var msg = this.get_expected_command("id");
+	//console.log(msg);
+	// get options (if any)
+	// get uciok (required)
+	
+	// set options
+	this.post("setoption name MultiPV value 3");
+	
+	this.post("isready"); // required before duing any caoculation to make sure initialization is finished.
+	// get readyok
+	
+	
+	// GAME INITIALIZATION
+	// For position jumps within game, don't perform game initialization.
+	// Perform game initialization to start a new game with the same engine. The old game will not be available (?).
+	// For multiple concurrent games, start new engine instance. 
+	
+	this.post("ucinewgame");
+	this.post("isready"); // required
+	// get readyok
+	
+    }
+}
+
+
+// var stockfish = new Worker("/js/stockfish.asm.js");
+
+// stockfish.onmessage = function onmessage(event) {
+//     var msg_obj = sfd_parse_message(event.data);
+//     if (msg_obj != null) {
+// 	console.log(msg_obj);
+//     }
+//     // Use a producer consumer queue. Consuming commands should be handled syncronously.
+// };
 
 
 
-// INITIALIZATION
-// If possible initialization should be performed once. New games should be started via ucinewgame command.
+// // INITIALIZATION
+// // If possible initialization should be performed once. New games should be started via ucinewgame command.
 
-stockfish.postMessage("uci");
-// get id
-// get options (if any)
-// get uciok (required)
-// set options
-stockfish.postMessage("isready"); // required before duing any caoculation to make sure initialization is finished.
-// get readyok
+// stockfish.postMessage("uci");
+// // get id
+// // get options (if any)
+// // get uciok (required)
 
+// // set options
+// stockfish.postMessage("setoption name MultiPV value 3");
 
-// GAME INITIALIZATION
-// For position jumps within game, don't perform game initialization.
-// Perform game initialization to start a new game with the same engine. The old game will not be available (?).
-// For multiple concurrent games, start new engine instance. 
-
-stockfish.postMessage("ucinewgame");
-stockfish.postMessage("isready"); // required
-// get readyok
-// position [fen <fenstring> | startpos ]  moves <move1> .... <movei>
+// stockfish.postMessage("isready"); // required before duing any caoculation to make sure initialization is finished.
+// // get readyok
 
 
-// ANALYTICS
-// position
-// go
-// stop
-// ponderhit (Send this if the user played the move that the engine is pondering on. The engine will continue the search in normal mode. This replaces the position command for a single move (?).)
-stockfish.postMessage("go depth 4");
+// // GAME INITIALIZATION
+// // For position jumps within game, don't perform game initialization.
+// // Perform game initialization to start a new game with the same engine. The old game will not be available (?).
+// // For multiple concurrent games, start new engine instance. 
+
+// stockfish.postMessage("ucinewgame");
+// stockfish.postMessage("isready"); // required
+// // get readyok
+// // position [fen <fenstring> | startpos ]  moves <move1> .... <movei>
 
 
-// QUIT
+// // ANALYTICS
+// // position
+// // go
+// // stop
+// // ponderhit (Send this if the user played the move that the engine is pondering on. The engine will continue the search in normal mode. This replaces the position command for a single move (?).)
+// stockfish.postMessage("go depth 4");
 
-// quit
+
+// // QUIT
+
+// // quit
 
 
 // ADDITIONAL OPTIONS
 // Use MultiPV option for multi-best line or k-best line mode.
 // Use UCI_LimitStrength to limit the strenth when playing against humans.
 
+
+export {
+    Stockfish
+};
