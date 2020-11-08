@@ -122,6 +122,8 @@ class Stockfish {
 	if (end_command) {
 	    this.post_queue.push({end_command: end_command,
 				  cb: cb});
+	} else {
+	    cb();
 	}
 
 	this.engine.postMessage(msg);
@@ -158,7 +160,11 @@ class Stockfish {
 		console.log("Ignoreing message.");
 	    }
 	};
-	
+    }
+    
+    
+    init() {
+	var this_obj = this;
 
 	// INITIALIZATION
 	// If possible initialization should be performed once. New games should be started via ucinewgame command.
@@ -167,8 +173,8 @@ class Stockfish {
 	// get id
 	// get options (if any)
 	// get uciok (required)
-	
-	this.post("uci", "uciok").then(function handle_msg_uci(messages) {
+
+	var pc = this.post("uci", "uciok").then(function handle_msg_uci(messages) {
 	    console.log("handle_msg_uci");
 
 	    for (var i=0; i<messages.length; i++) {
@@ -187,14 +193,16 @@ class Stockfish {
 		    console.log(msg);
 		}
 	    }
-	})
+	});
 	
 	// set options
 	// post isready (required before duing any caoculation to make sure initialization is finished)
 	// get readyok
 
-	this.post("setoption name MultiPV value 3");
-	this.post("isready", "readyok").then(function(messages) {
+	pc = pc.then(() => this.post("setoption name MultiPV value 3"));
+	
+	pc = pc.then(() => this.post("isready", "readyok"));
+	pc = pc.then(function(messages) {
 	    console.assert(messages.length == 1);
 	    console.log("handle_isready");
 	});
@@ -209,30 +217,38 @@ class Stockfish {
 	// post isready (required)
 	// get readyok
 
-	this.post("ucinewgame");
-	this.post("isready", "readyok").then(function(messages) {
+	pc = pc.then(() => this.post("ucinewgame"));
+	pc = pc.then(() => this.post("isready", "readyok").then(function(messages) {
 	    console.assert(messages.length == 1);
 	    console.log("handle_isready");
-	});
-	
+	}));
+
+	return pc;
     }
+
+
+    quit() {
+	return this.post("quit");
+    }
+
 
     set_position(position) {
 	// TODO
     }
+    
 
     perform_move(move) {
 	// TODO
     }
+    
 
     perform_analysis() {
 	// TODO
     }
-
-    quit() {
-	this.post("quit");
-    }
+    
 }
+
+
 
 
 // // ANALYTICS

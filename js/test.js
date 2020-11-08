@@ -5,4 +5,5 @@ View.new_game_onclick()
 //View.mark_square(1, 1);
 
 var engine = new Sfd.Stockfish("User analyzer");
-engine.quit();
+var pc = engine.init();
+pc.then(() => engine.quit());
