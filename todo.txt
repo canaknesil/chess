@@ -1,3 +1,10 @@
+BUGS:
+
+Change selected squares during orientation toggle.
+
+Move piece from their previous locations during orientation toggle.
+
+
 Two modes: play, setup.  In setup mode players can remove, add, move
 pieces freely. When mode switches to play, a branch should be created
 in the game flow graph.
