@@ -97,7 +97,7 @@ function sfd_parse_message(msg) {
 	}
     } else if (command == "option") {
 	msg_obj["option_str"] = original_msg; msg = ""
-	console.warn("Option parsing not implemented.");
+	//console.warn("Option parsing not implemented.");
     } else if (command == "Stockfish.js") {
 	// This is the start message. Ignore it.
 	return null;
@@ -114,103 +114,125 @@ function sfd_parse_message(msg) {
 }
 
 
-// TODO: Reimplement with promise chain. 
 
 class Stockfish {
-    post(msg, onmessage) {
+    post_with_cb(msg, end_command, cb) {
 	console.log("SFD POST (" + this.engine_id + "): " + msg + "");
-	var this_obj = this;
-	this.engine.onmessage = function outer_onmessage(event) {
-	    console.log("SFD RECEIVE (" + this_obj.engine_id + "): " + event.data);
-	    var msg_obj = sfd_parse_message(event.data);
-	    if (msg_obj != null)
-		onmessage(msg_obj);
-	    else
-		console.log("Ignoring msg.");
-	};
+
+	if (end_command) {
+	    this.post_queue.push({end_command: end_command,
+				  cb: cb});
+	}
+
 	this.engine.postMessage(msg);
+    }
+
+    post(msg, end_command) {
+	var this_obj = this;
+	return new Promise(function(resolve, reject) {
+	    this_obj.post_with_cb(msg, end_command, resolve);
+	});
     }
     
     constructor(engine_id) {
 	this.engine_id = engine_id;
 	this.engine = new Worker("/js/stockfish.asm.js");
-	var engine_obj = this;
+	this.post_queue = []; // push expected response in post, pop in on message.
+
+	this.msg_queue = []; // will be used in onmessage to store messages.
+	var this_obj = this;
+	this.engine.onmessage = function onmessage(event) {
+	    console.log("SFD (" + this_obj.engine_id + "): " + event.data);
+	    var msg_obj = sfd_parse_message(event.data);
+	    if (msg_obj != null) {
+		this_obj.msg_queue.push(msg_obj);
+
+		var post_obj = this_obj.post_queue[0];
+		if (post_obj.end_command == msg_obj.command) {
+		    this_obj.post_queue.shift();
+		    var messages = this_obj.msg_queue;
+		    this_obj.msg_queue = [];
+		    post_obj.cb(messages);
+		}
+	    } else {
+		console.log("Ignoreing message.");
+	    }
+	};
 	
+
 	// INITIALIZATION
 	// If possible initialization should be performed once. New games should be started via ucinewgame command.
+
+	// post uci
+	// get id
+	// get options (if any)
+	// get uciok (required)
 	
-	this.post("uci", function handle_msg_uci(msg) {
+	this.post("uci", "uciok").then(function handle_msg_uci(messages) {
 	    console.log("handle_msg_uci");
-	    console.log(msg);
-	    if (msg.command == "id") {
-		if (msg.hasOwnProperty("name"))
-		    engine_obj.name = msg.name;
-		if (msg.hasOwnProperty("author"))
-		    engine_obj.author = msg.author;
+
+	    for (var i=0; i<messages.length; i++) {
+		var msg = messages[i];
+		if (msg.command == "id") {
+		    if (msg.name)
+			this_obj.name = msg.name;
+		    if (msg.author)
+			this_obj.author = msg.author;
+		} else if (msg.command == "option") {
+		    // Ignore options right now.
+		} else if (msg.command == "uciok") {
+		    
+		} else {
+		    console.warn("Unexpected message: ");
+		    console.log(msg);
+		}
 	    }
-	    // get id
-	    // get options (if any)
-	    // get uciok (required)	    
-	});
-	console.log(this.name);
-	console.log(this.author);
+	})
 	
 	// set options
-	//this.post("setoption name MultiPV value 3");
-	
-	//this.post("isready"); // required before duing any caoculation to make sure initialization is finished.
+	// post isready (required before duing any caoculation to make sure initialization is finished)
 	// get readyok
-	
+
+	this.post("setoption name MultiPV value 3");
+	this.post("isready", "readyok").then(function(messages) {
+	    console.assert(messages.length == 1);
+	    console.log("handle_isready");
+	});
+
 	
 	// GAME INITIALIZATION
 	// For position jumps within game, don't perform game initialization.
 	// Perform game initialization to start a new game with the same engine. The old game will not be available (?).
 	// For multiple concurrent games, start new engine instance. 
 	
-	//this.post("ucinewgame");
-	//this.post("isready"); // required
+	// post ucinewgame
+	// post isready (required)
 	// get readyok
+
+	this.post("ucinewgame");
+	this.post("isready", "readyok").then(function(messages) {
+	    console.assert(messages.length == 1);
+	    console.log("handle_isready");
+	});
 	
     }
+
+    set_position(position) {
+	// TODO
+    }
+
+    perform_move(move) {
+	// TODO
+    }
+
+    perform_analysis() {
+	// TODO
+    }
+
+    quit() {
+	this.post("quit");
+    }
 }
-
-
-// var stockfish = new Worker("/js/stockfish.asm.js");
-
-// stockfish.onmessage = function onmessage(event) {
-//     var msg_obj = sfd_parse_message(event.data);
-//     if (msg_obj != null) {
-// 	console.log(msg_obj);
-//     }
-//     // Use a producer consumer queue. Consuming commands should be handled syncronously.
-// };
-
-
-
-// // INITIALIZATION
-// // If possible initialization should be performed once. New games should be started via ucinewgame command.
-
-// stockfish.postMessage("uci");
-// // get id
-// // get options (if any)
-// // get uciok (required)
-
-// // set options
-// stockfish.postMessage("setoption name MultiPV value 3");
-
-// stockfish.postMessage("isready"); // required before duing any caoculation to make sure initialization is finished.
-// // get readyok
-
-
-// // GAME INITIALIZATION
-// // For position jumps within game, don't perform game initialization.
-// // Perform game initialization to start a new game with the same engine. The old game will not be available (?).
-// // For multiple concurrent games, start new engine instance. 
-
-// stockfish.postMessage("ucinewgame");
-// stockfish.postMessage("isready"); // required
-// // get readyok
-// // position [fen <fenstring> | startpos ]  moves <move1> .... <movei>
 
 
 // // ANALYTICS
