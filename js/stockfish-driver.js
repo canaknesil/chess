@@ -116,13 +116,13 @@ function sfd_parse_message(msg) {
 
 
 class Stockfish {
-    post_with_cb(msg, end_command, cb, update_info_cb) {
+
+    post_with_cb(msg, end_command, cb) {
 	console.log("SFD POST (" + this.engine_id + "): " + msg + "");
 
 	if (end_command) {
 	    this.post_queue.push({end_command: end_command,
-				  cb: cb,
-				  update_info_cb: update_info_cb});
+				  cb: cb});
 	} else {
 	    cb();
 	}
@@ -139,13 +139,16 @@ class Stockfish {
     }
 
     
-    constructor(engine_id) {
+    constructor(engine_id, update_info_cb) {
 	this.engine_id = engine_id;
 	this.engine = new Worker("/js/stockfish.asm.js");
 	this.post_queue = []; // push expected response in post, pop in on message.
 
-	this.msg_queue = []; // will be used in onmessage to store messages.
 	var this_obj = this;
+
+	this.update_info_cb = update_info_cb;
+
+	this.msg_queue = []; // will be used in onmessage to store messages.
 	this.engine.onmessage = function onmessage(event) {
 	    console.log("SFD (" + this_obj.engine_id + "): " + event.data);
 	    var msg_obj = sfd_parse_message(event.data);
@@ -153,8 +156,10 @@ class Stockfish {
 		this_obj.msg_queue.push(msg_obj);
 		var post_obj = this_obj.post_queue[0];
 		
-		if (post_obj.end_command == "bestmove" && msg_obj.command == "info" && post_obj.update_info_cb)
-		    post_obj.update_info_cb(msg_obj);
+		if (post_obj.end_command == "bestmove" && msg_obj.command == "info" && this_obj.update_info_cb) {
+		    console.log("calling update info cb.");
+		    this_obj.update_info_cb(msg_obj);
+		}
 
 		if (post_obj.end_command == msg_obj.command) {
 		    this_obj.post_queue.shift();
