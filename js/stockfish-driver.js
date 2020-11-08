@@ -76,7 +76,7 @@ function sfd_parse_message(msg) {
 		    }
 		    msg = msg.substr(0, idx - 1);
 		}
-		msg_obj[c2] = msg.split(); msg = "";
+		msg_obj[c2] = msg.split(" "); msg = "";
 	    } else if (c2 == "score") {
 		var c3 = car(msg); msg = cdr(msg);
 		if (c3 == "cp" || c3 == "mate") {
@@ -139,14 +139,15 @@ class Stockfish {
     }
 
     
-    constructor(engine_id, update_info_cb) {
+    constructor(engine_id, update_info_cb, number_of_lines=1) {
 	this.engine_id = engine_id;
+	this.update_info_cb = update_info_cb;
+	this.number_of_lines = number_of_lines;
+
 	this.engine = new Worker("/js/stockfish.asm.js");
 	this.post_queue = []; // push expected response in post, pop in on message.
 
 	var this_obj = this;
-
-	this.update_info_cb = update_info_cb;
 
 	this.msg_queue = []; // will be used in onmessage to store messages.
 	this.engine.onmessage = function onmessage(event) {
@@ -157,7 +158,6 @@ class Stockfish {
 		var post_obj = this_obj.post_queue[0];
 		
 		if (post_obj.end_command == "bestmove" && msg_obj.command == "info" && this_obj.update_info_cb) {
-		    console.log("calling update info cb.");
 		    this_obj.update_info_cb(msg_obj);
 		}
 
@@ -210,7 +210,8 @@ class Stockfish {
 	// post isready (required before duing any caoculation to make sure initialization is finished)
 	// get readyok
 
-	pc = pc.then(() => this.post("setoption name MultiPV value 3"));
+	if (this.number_of_lines > 1)
+	    pc = pc.then(() => this.post("setoption name MultiPV value " + this_obj.number_of_lines));
 	
 	pc = pc.then(() => this.post("isready", "readyok"));
 	pc = pc.then(function(messages) {
@@ -260,19 +261,20 @@ class Stockfish {
 
     perform_analysis() {
 	var this_obj = this;
-	return this.post("go depth 4", "bestmove").then(function(messages) {
+	return this.post("go depth 2", "bestmove").then(function(messages) {
 	    var len = messages.length;
-	    console.assert(len >= 2);
-	    var info_msg = messages[len-2];
+	    console.assert(len >= this_obj.number_of_lines + 1);
+	    var info_msgs = messages.slice(len - 1 - this_obj.number_of_lines, len - 1);
 	    var bestmove_msg = messages[len-1];
-	    console.assert(info_msg.command == "info");
+	    for (var i=0; i<info_msgs.length; i++)
+		console.assert(info_msgs[i].command == "info");
 	    console.assert(bestmove_msg.command == "bestmove");
 
 	    this_obj.bestmove = bestmove_msg.bestmove;
 	    if (bestmove_msg.ponder) {
 		this_obj.ponder = bestmove_msg.ponder;
 	    }
-	    return bestmove_msg.bestmove;
+	    return info_msgs;
 	});
     }
     

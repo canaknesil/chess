@@ -1,4 +1,5 @@
 import * as Util from "./util.js";
+import * as Sfd from "./stockfish-driver.js";
 
 
 //
