@@ -67,6 +67,13 @@ function new_piece(piece_type, x, y) {
     move_piece(img, x, y);
 }
 
+
+function perform_move(from, to) {
+    var piece = position[from[0]][from[1]];
+    move_piece(piece, ...to);
+}
+
+
 Velocity.defaults.fpsLimit = 30; // Default is 60. It must be factors of 60.
 
 // This removes the piece at the destination square, if exists.
@@ -93,7 +100,7 @@ function move_piece(piece, x, y, remove=true) {
 
 // If piece does not exist don't do anything. 
 function remove_piece(x, y) {
-    piece = position[x][y];
+    var piece = position[x][y];
     if (piece != null) {
 	piece.remove();
 	position[x][y] = null;
@@ -184,6 +191,7 @@ function add_listener(new_listener) {
 export {
     add_listener,
     update_from_position,
+    perform_move,
     mark_square,
     is_square_marked,
     unmark_square,

@@ -1,6 +1,6 @@
 import * as View from "./view.js";
 import * as Model from "./model.js";
-
+import * as Util from "./util.js";
 
 //
 // STATUS
@@ -18,11 +18,48 @@ function new_game() {
     View.update_from_position(position);
 }
 
+
 function get_current_position() {
-    return game_get_position(selected_game);
+    return Model.game_get_position(selected_game);
 }
 
+
+var selected_square = null;
+var previous_src_square = null;
+var previous_dest_square = null;
+var current_src_square = null;
+var current_desk_square = null;
+
 function click_square(x, y) {
+    // move piece
+    var piece = Model.game_get_position(selected_game)[x][y];
+    if (piece && selected_game.turn == piece[0]) {
+	// Select square
+	if (current_src_square)
+	    View.unmark_square(...current_src_square);
+	View.mark_square(x, y);
+	current_src_square = [x, y];
+    } else if (current_src_square) {
+	// Move piece
+	if (Model.game_perform_move(selected_game, current_src_square, [x, y])) {
+	    current_desk_square = [x, y];
+	    
+	    if (previous_src_square)
+		View.unmark_square(...previous_src_square);
+	    if (previous_dest_square)
+		View.unmark_square(...previous_dest_square);
+	    View.mark_square(...current_desk_square);
+	    View.mark_square(...current_src_square);
+	    
+	    View.perform_move(current_src_square, current_desk_square);
+
+	    previous_src_square = current_src_square;
+	    previous_dest_square = current_desk_square;
+	    current_src_square = null;
+	    current_desk_square = null;
+	}
+    }
+
     //console.log([x, y] + " clicked.");
     // Possible actions:
     // select piece
@@ -31,11 +68,12 @@ function click_square(x, y) {
     // etc.
 
     // Temporary behavior
-    if (View.is_square_marked(x, y))
-	View.unmark_square(x, y)
-    else
-	View.mark_square(x, y)
+    // if (View.is_square_marked(x, y))
+    // 	View.unmark_square(x, y)
+    // else
+    // 	View.mark_square(x, y)
 }
+
 
 View.add_listener({
     new_game_onclick: new_game,
