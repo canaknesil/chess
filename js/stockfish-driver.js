@@ -116,12 +116,13 @@ function sfd_parse_message(msg) {
 
 
 class Stockfish {
-    post_with_cb(msg, end_command, cb) {
+    post_with_cb(msg, end_command, cb, update_info_cb) {
 	console.log("SFD POST (" + this.engine_id + "): " + msg + "");
 
 	if (end_command) {
 	    this.post_queue.push({end_command: end_command,
-				  cb: cb});
+				  cb: cb,
+				  update_info_cb: update_info_cb});
 	} else {
 	    cb();
 	}
@@ -129,12 +130,14 @@ class Stockfish {
 	this.engine.postMessage(msg);
     }
 
+
     post(msg, end_command) {
 	var this_obj = this;
 	return new Promise(function(resolve, reject) {
 	    this_obj.post_with_cb(msg, end_command, resolve);
 	});
     }
+
     
     constructor(engine_id) {
 	this.engine_id = engine_id;
@@ -148,8 +151,11 @@ class Stockfish {
 	    var msg_obj = sfd_parse_message(event.data);
 	    if (msg_obj != null) {
 		this_obj.msg_queue.push(msg_obj);
-
 		var post_obj = this_obj.post_queue[0];
+		
+		if (post_obj.end_command == "bestmove" && msg_obj.command == "info" && post_obj.update_info_cb)
+		    post_obj.update_info_cb(msg_obj);
+
 		if (post_obj.end_command == msg_obj.command) {
 		    this_obj.post_queue.shift();
 		    var messages = this_obj.msg_queue;
@@ -157,7 +163,7 @@ class Stockfish {
 		    post_obj.cb(messages);
 		}
 	    } else {
-		console.log("Ignoreing message.");
+		console.log("Ignoring message.");
 	    }
 	};
     }
@@ -235,15 +241,34 @@ class Stockfish {
     set_position(position) {
 	// TODO
     }
+
+
+    set_start_position() {
+	return this.post("position startpos");
+    }
     
 
-    perform_move(move) {
-	// TODO
+    perform_moves(moves) {
+	return this.post("position moves " + moves);
     }
     
 
     perform_analysis() {
-	// TODO
+	var this_obj = this;
+	return this.post("go depth 4", "bestmove").then(function(messages) {
+	    var len = messages.length;
+	    console.assert(len >= 2);
+	    var info_msg = messages[len-2];
+	    var bestmove_msg = messages[len-1];
+	    console.assert(info_msg.command == "info");
+	    console.assert(bestmove_msg.command == "bestmove");
+
+	    this_obj.bestmove = bestmove_msg.bestmove;
+	    if (bestmove_msg.ponder) {
+		this_obj.ponder = bestmove_msg.ponder;
+	    }
+	    return bestmove_msg.bestmove;
+	});
     }
     
 }
@@ -258,10 +283,6 @@ class Stockfish {
 // // ponderhit (Send this if the user played the move that the engine is pondering on. The engine will continue the search in normal mode. This replaces the position command for a single move (?).)
 // stockfish.postMessage("go depth 4");
 
-
-// // QUIT
-
-// // quit
 
 
 // ADDITIONAL OPTIONS

@@ -6,4 +6,13 @@ View.new_game_onclick()
 
 var engine = new Sfd.Stockfish("User analyzer");
 var pc = engine.init();
-pc.then(() => engine.quit());
+pc = pc.then(() => engine.set_start_position());
+
+pc = pc.then(() => engine.perform_analysis());
+
+pc = pc.then((bestmove) => {
+    console.log("BESTMOVE: " + bestmove);
+});
+
+pc = pc.then(() => engine.quit());
+
