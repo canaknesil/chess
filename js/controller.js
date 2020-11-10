@@ -34,11 +34,18 @@ function click_square(x, y) {
     // move piece
     var piece = Model.game_get_position(selected_game)[x][y];
     if (piece && selected_game.turn == piece[0]) {
-	// Select square
-	if (current_src_square)
+	// Select / unselect square
+	if (current_src_square && Util.array_equal(current_src_square, [x, y])) {
 	    View.unmark_square(...current_src_square);
-	View.mark_square(x, y);
-	current_src_square = [x, y];
+	    current_src_square = null;
+	} else if (current_src_square) {
+	    View.unmark_square(...current_src_square);
+	    View.mark_square(x, y);
+	    current_src_square = [x, y];
+	} else {
+	    View.mark_square(x, y);
+	    current_src_square = [x, y];
+	}
     } else if (current_src_square) {
 	// Move piece
 	if (Model.game_perform_move(selected_game, current_src_square, [x, y])) {

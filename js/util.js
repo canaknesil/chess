@@ -10,6 +10,16 @@ function make_8x8_null_array(fill=null) {
 }
 
 
+function array_equal(a1, a2) {
+    if (a1.length != a2.length)
+	return false;
+    for (var i=0; i<a1.length; i++) {
+	if (a1[i] != a2[i])
+	    return false;
+    }
+    return true;
+}
+
 
 //
 // POSITION
@@ -79,6 +89,7 @@ function position_name_to_index(square_name) {
 
 
 export {
+    array_equal,
     make_8x8_null_array,
     make_empty_position,
     make_start_position,
