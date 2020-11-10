@@ -1,11 +1,22 @@
 import * as View from "./view.js";
-//import * as Sfd from "./stockfish-driver.js";
+
 
 View.new_game_onclick()
 //View.mark_square(1, 1);
 
 
+var chess = new Chess();
+console.log(chess.ascii());
+console.log(chess.moves({verbose: true}));
+chess.move({from: "e2", to: "e4"});
+console.log(chess.ascii());
+console.log(chess.moves({verbose: true}));
+
+
+
 // STOCKFISH DRIVER USAGE
+
+//import * as Sfd from "./stockfish-driver.js";
 
 // function update_info_cb(info) {
 //     console.log("INFO update");

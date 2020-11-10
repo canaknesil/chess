@@ -1,20 +1,42 @@
+TODO:
+
+Position in model. Do not store position in model. Get it from
+chess.js when necessary. Store FEN string in game flow, it contains
+more info. Also store last move in game flow to visualize last move.
+
+Ideas:
+
+Find and load chess PGN. Explanations for many chess position. Display
+then while playing. Chess.js supports it.
+
 Two modes: play, setup.  In setup mode players can remove, add, move
 pieces freely. When mode switches to play, a branch should be created
-in the game flow graph.
+in the game flow graph in case there is a difference.
 
 Game flow graph can be clickable. When clicked, game continues from
-there on a new branch. Old branch stays.
+there on a new branch. Old branchs stay.
 
 Hovering on game flow graph will temporarily display that
 position.
 
-Multiple game flow selections. Creation of multiple games. Saving and
-loading games with cookies.
+Multiple game flow selections. Creation of multiple games.
 
-Highlight last move (piece and square it came from. Also find a way to
-show the captured piece if exists.
-
-Move pieces my first clicking to the square piece stays, and than the
-destination square. Don't show possible destination squares.
+Saving and loading games with cookies.
 
 Move games to local drive from cookies.
+
+Display the captured piece if one was captured during last move.
+
+Display all captured piece.
+
+Display squre coordinates.
+
+Display who's turn is it.
+
+End to end online match.
+
+End to end online match with federated network (may be a far fetch...).
+
+Option to show possible destination squares. Default should be off
+since it does not reflect real life.
+
