@@ -1,12 +1,12 @@
-function make_8x8_null_array() {
-    return [[null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null],
-	    [null, null, null, null, null, null, null, null]];
+function make_8x8_null_array(fill=null) {
+    return [[fill, fill, fill, fill, fill, fill, fill, fill],
+	    [fill, fill, fill, fill, fill, fill, fill, fill],
+	    [fill, fill, fill, fill, fill, fill, fill, fill],
+	    [fill, fill, fill, fill, fill, fill, fill, fill],
+	    [fill, fill, fill, fill, fill, fill, fill, fill],
+	    [fill, fill, fill, fill, fill, fill, fill, fill],
+	    [fill, fill, fill, fill, fill, fill, fill, fill],
+	    [fill, fill, fill, fill, fill, fill, fill, fill]];
 }
 
 

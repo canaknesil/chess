@@ -4,9 +4,11 @@ import * as Util from './util.js';
 var svg_ns = "http://www.w3.org/2000/svg"
 var board_svg;
 
-var position = Util.make_8x8_null_array();
+var position = Util.make_8x8_null_array(); // Contains piece elements
+var squares = Util.make_8x8_null_array(); // Constinas square elements
+var markings = Util.make_8x8_null_array(false);
 var orientation = "W";
-var listener = null;
+var listener = null; // Set by controller.
 
 
 // Draw chessboard
@@ -20,6 +22,7 @@ var listener = null;
     for (var x=0; x<8; x++) {
 	for (var y=0; y<8; y++) {
 	    var square = document.createElementNS(svg_ns, "rect");
+	    squares[x][7 - y] = square;
 	    
 	    square.setAttribute("width", "100");
 	    square.setAttribute("height", "100");
@@ -65,38 +68,46 @@ function new_piece(piece_type, x, y) {
 
     board_svg.appendChild(img);
     move_piece(img, x, y);
+    position[x][y] = img;
 }
 
 
-function perform_move(from, to) {
+function perform_move(from, to, remove=true) {
     var piece = position[from[0]][from[1]];
-    move_piece(piece, ...to);
+    move_piece(piece, ...to, remove);
+    position[to[0]][to[1]] = piece;
+    position[from[0]][from[1]] = null;
 }
 
 
 Velocity.defaults.fpsLimit = 30; // Default is 60. It must be factors of 60.
 
-// This removes the piece at the destination square, if exists.
 function move_piece(piece, x, y, remove=true) {
-    var old_piece = position[x][y];
     if (remove) {
+	var old_piece = position[x][y];
 	if (old_piece != null) {
 	    remove_piece(x, y);
 	}
     }
-    var square_size = 100;
-    var [board_x, board_y] = board_coordinates(x, y);
-    Velocity(piece, {x: board_x * square_size,
-		     y: (7 - board_y) * square_size},
-	     {duration: 400
-	      // ,complete: function(elements, activeCall) {
-	      // 	  piece.style.setProperty("left", "calc(" + board_x + " * var(--square-size))");
-	      // 	  piece.style.setProperty("top", "calc((7 - " + board_y + ") * var(--square-size))");
-	      // }
-	     });
     
-    position[x][y] = piece;
+    var [board_x, board_y] = board_coordinates(x, y);
+    var square_size = 100;
+    var animation = true;
+    if (animation) {
+	Velocity(piece, {x: board_x * square_size,
+			 y: (7 - board_y) * square_size},
+		 {duration: 400
+		  // ,complete: function(elements, activeCall) {
+		  //     piece.setAttribute("x", board_x * square_size);
+		  //     piece.setAttribute("y", (7 - board_y) * square_size);
+		  // }
+		 });
+    } else {
+	piece.setAttribute("x", board_x * square_size);
+	piece.setAttribute("y", (7 - board_y) * square_size);
+    }
 }
+
 
 // If piece does not exist don't do anything. 
 function remove_piece(x, y) {
@@ -124,38 +135,45 @@ function update_from_position(new_position) {
     }
 }
 
-// TODO: Do marking more efficiently.
-// Square elements can be kept after creation to avoid fething every time.
+
 function get_square_element(x, y) {
     [x, y] = board_coordinates(x, y);
-    var id = Util.position_index_to_name(x, y);
-    var square = document.getElementById(id);
-    return square;
+    return squares[x][y];
 }
 
 function mark_square(x, y) {
     var square = get_square_element(x, y);
     square.classList.add("marked");
+    markings[x][y] = true;
 }
 
 function unmark_square(x, y) {
     var square = get_square_element(x, y);
     square.classList.remove("marked");
+    markings[x][y] = false;
 }
 
 function is_square_marked(x, y) {
     var square = get_square_element(x, y);
-    return square.classList.contains("marked");
+    var is_marked_square = square.classList.contains("marked");
+    var is_marked_store = markings[x][y];
+    console.assert(is_marked_square == is_marked_store);
+    return is_marked_store;
 }
 
 function update_gui() {
-    // Update piece positions
     for (var i=0; i<8; i++) {
 	for (var j=0; j<8; j++) {
+	    // Update piece positions
 	    if (position[i][j] != null) {
 		var piece = position[i][j];
 		move_piece(piece, i, j, false);
 	    }
+	    // Update markings
+	    if (markings[i][j])
+		mark_square(i, j);
+	    else
+		unmark_square(i, j);
 	}
     }
 }
