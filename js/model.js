@@ -6,16 +6,16 @@ import * as Sfd from "./stockfish-driver.js";
 // GAME FLOW
 //
 
-function make_game_flow(position) {
+function make_game_flow(fen) {
     var root_node = {past_node: null,
 		     future_nodes: [],
-		     position: position};
+		     fen: fen};
     return {root_node: root_node,
 	    selected_node: root_node};
 }
 
-function game_flow_get_position(game_flow) {
-    return game_flow.selected_node.position;
+function game_flow_get_fen(game_flow) {
+    return game_flow.selected_node.fen;
 }
 
 //
@@ -28,8 +28,8 @@ function update_analysis_info_cb(info) {
 
 // Name does not have to be unique.
 function make_game(name) {
-    var position = Util.make_start_position();
-    var game_flow = make_game_flow(position);
+    var chess = new Chess();
+    var game_flow = make_game_flow(chess.fen());
 
     var analysis_engine = new Sfd.Stockfish("analyzer", update_analysis_info_cb, 3);
     var analysis_engine_pc = analysis_engine
@@ -37,45 +37,69 @@ function make_game(name) {
 	.then(() => analysis_engine.set_start_position());
 
     var mode = "user vs user";
-    var turn = "W";
     
     return {name: name,
+	    chess: chess,
 	    game_flow: game_flow,
 	    analysis_engine: analysis_engine,
 	    analysis_engine_pc: analysis_engine_pc,
-	    mode: mode,
-	    turn: turn};
+	    mode: mode};
 }
 
 function game_get_position(game) {
-    return game_flow_get_position(game.game_flow);
+    var chess_position = game.chess.board();
+    var position = Util.make_8x8_null_array();
+    for (var x=0; x<8; x++) {
+	for (var y=0; y<8; y++) {
+	    var piece = chess_position[7-y][x];
+	    if (piece) {
+		position[x][y] = piece.color.toUpperCase() + piece.type.toUpperCase();
+	    }
+	}
+    }
+    return position;
+}
+
+function game_perform_move_backup(game, from, to) {
+    var moves = game.chess.moves({verbose: true});
+    var from_name = Util.position_index_to_name(...from);
+    var to_name = Util.position_index_to_name(...to);
+    var is_valid = false;
+    for (var i=0; i<moves.length; i++) {
+	if (moves[i].from == from_name && moves[i].to == to_name)
+	    is_valid = true;
+    }
+    //console.log(is_valid);
+
+    if (is_valid) {
+	console.log("Performing move " + from + " -> " + to);
+	game.chess.move({from: from_name, to: to_name});
+    }
+    return is_valid;
 }
 
 function game_perform_move(game, from, to) {
-    console.log("Performing move " + from + " -> " + to);
-    // TODO check if move is valid.
-    var position = game_get_position(game);
-    position[to[0]][to[1]] = position[from[0]][from[1]];
-    position[from[0]][from[1]] = null;
-    // TODO take into account castle, en passent, etc. Maybe use a tool for FEN manipulation.
-
-    game_toggle_turn(game);
-    return true;
+    var from = Util.position_index_to_name(...from);
+    var to = Util.position_index_to_name(...to);
+    var is_valid = game.chess.move({from: from, to: to});
+    //console.log(is_valid);
+    if (is_valid) {
+	console.log("Performing move " + from + " -> " + to);
+    }
+    return is_valid;
 }
 
-function game_toggle_turn(game) {
-    if (game.turn == "W")
-	game.turn = "B";
-    else
-	game.turn = "W";
-}
 
+function game_get_turn(game) {
+    return game.chess.turn().toUpperCase();
+}
 
 
 export {
     make_game,
     game_get_position,
-    game_perform_move
+    game_perform_move,
+    game_get_turn
 };
 
 console.log("MODEL LOADED.");

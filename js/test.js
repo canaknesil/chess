@@ -5,12 +5,12 @@ View.new_game_onclick()
 //View.mark_square(1, 1);
 
 
-var chess = new Chess();
-console.log(chess.ascii());
-console.log(chess.moves({verbose: true}));
-chess.move({from: "e2", to: "e4"});
-console.log(chess.ascii());
-console.log(chess.moves({verbose: true}));
+// var chess = new Chess();
+// console.log(chess.ascii());
+// console.log(chess.moves({verbose: true}));
+// chess.move({from: "e2", to: "e4"});
+// console.log(chess.ascii());
+// console.log(chess.moves({verbose: true}));
 
 
 

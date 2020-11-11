@@ -33,7 +33,7 @@ var current_desk_square = null;
 function click_square(x, y) {
     // move piece
     var piece = Model.game_get_position(selected_game)[x][y];
-    if (piece && selected_game.turn == piece[0]) {
+    if (piece && Model.game_get_turn(selected_game) == piece[0]) {
 	// Select / unselect square
 	if (current_src_square && Util.array_equal(current_src_square, [x, y])) {
 	    View.unmark_square(...current_src_square);
