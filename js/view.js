@@ -67,14 +67,14 @@ function new_piece(piece_type, x, y) {
     img.setAttribute("piece_type", piece_type);
 
     board_svg.appendChild(img);
-    move_piece(img, x, y);
+    move_piece(img, x, y, true, false);
     position[x][y] = img;
 }
 
 
-function perform_move(from, to, remove=true) {
+function perform_move(from, to, remove=true, post_animation_cb=null) {
     var piece = position[from[0]][from[1]];
-    move_piece(piece, ...to, remove);
+    move_piece(piece, ...to, remove, true, post_animation_cb);
     position[to[0]][to[1]] = piece;
     position[from[0]][from[1]] = null;
 }
@@ -82,29 +82,34 @@ function perform_move(from, to, remove=true) {
 
 Velocity.defaults.fpsLimit = 30; // Default is 60. It must be factors of 60.
 
-function move_piece(piece, x, y, remove=true) {
-    if (remove) {
-	var old_piece = position[x][y];
-	if (old_piece != null) {
-	    remove_piece(x, y);
-	}
-    }
-    
+function move_piece(piece, x, y, remove=true, animation=true, post_animation_cb=null) {
+    var old_piece = position[x][y];
     var [board_x, board_y] = board_coordinates(x, y);
     var square_size = 100;
-    var animation = true;
     if (animation) {
 	Velocity(piece, {x: board_x * square_size,
 			 y: (7 - board_y) * square_size},
 		 {duration: 400
-		  // ,complete: function(elements, activeCall) {
-		  //     piece.setAttribute("x", board_x * square_size);
-		  //     piece.setAttribute("y", (7 - board_y) * square_size);
-		  // }
+		  ,complete: function(elements, activeCall) {
+		      if (remove) {
+			  if (old_piece != null) {
+			      old_piece.remove();
+			  }
+		      }
+		      if (post_animation_cb)
+			  post_animation_cb();
+		  }
 		 });
     } else {
 	piece.setAttribute("x", board_x * square_size);
 	piece.setAttribute("y", (7 - board_y) * square_size);
+	if (remove) {
+	    if (old_piece != null) {
+		old_piece.remove();
+	    }
+	}
+	if (post_animation_cb)
+	    post_animation_cb();
     }
 }
 
@@ -129,7 +134,10 @@ function update_from_position(new_position) {
 	    var gui_piece = position[i][j];
 	    var gui_piece_type = (gui_piece == null ? null : gui_piece.getAttribute("piece_type"));
 	    if (gui_piece_type != piece_type) {
-		new_piece(piece_type, i, j);
+		if (piece_type == null)
+		    remove_piece(i, j);
+		else
+		    new_piece(piece_type, i, j);
 	    }
 	}
     }

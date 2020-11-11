@@ -58,7 +58,9 @@ function click_square(x, y) {
 	    View.mark_square(...current_desk_square);
 	    View.mark_square(...current_src_square);
 	    
-	    View.perform_move(current_src_square, current_desk_square);
+	    View.perform_move(current_src_square, current_desk_square, true, function() {
+		View.update_from_position(Model.game_get_position(selected_game));
+	    });
 
 	    previous_src_square = current_src_square;
 	    previous_dest_square = current_desk_square;

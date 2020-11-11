@@ -1,8 +1,10 @@
+BUG:
+
+
 TODO:
 
-Position in model. Do not store position in model. Get it from
-chess.js when necessary. Store FEN string in game flow, it contains
-more info. Also store last move in game flow to visualize last move.
+Store last move in game flow. Display it with update_gui and
+update_gui_from_position.
 
 Ideas:
 
