@@ -89,9 +89,11 @@ function game_perform_move(game, from, to) {
 	game.analysis_engine_pc = game.analysis_engine_pc.then(() => {
 	    game.analysis_engine.set_position_with_fen(fen);
 	});
-	game.opponent_engine_pc = game.opponent_engine_pc.then(() => {
-	    game.opponent_engine.set_position_with_fen(fen);
-	});
+	if (game.opponent_engine) {
+	    game.opponent_engine_pc = game.opponent_engine_pc.then(() => {
+		game.opponent_engine.set_position_with_fen(fen);
+	    });
+	}
     }
     return is_valid;
 }

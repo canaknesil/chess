@@ -151,6 +151,7 @@ function update_from_position(new_position) {
 	    }
 	}
     }
+    update_gui();
 }
 
 
@@ -199,15 +200,19 @@ function update_gui() {
 
 // Input from user
 
-function new_game_onclick() {
-    var colors = document.getElementsByName('new_game_color');
-    var color = null;
-    for (var i=0; i<colors.length; i++) {
-	if (colors[i].checked) {
-	    color = colors[i].value;
+function get_radio_button_value(name) {
+    var options = document.getElementsByName(name);
+    var option = null;
+    for (var i=0; i<options.length; i++) {
+	if (options[i].checked) {
+	    return options[i].value;
 	}
     }
-    
+    return option;
+}
+
+function new_game_onclick() {
+    var color = get_radio_button_value("new_game_color");
     if (color == "white")
 	color = "W";
     else if (color == "black")
@@ -215,8 +220,16 @@ function new_game_onclick() {
     else if (color == null) {}
     else
 	console.warn("Unrecognized color value.");
+    
+    var mode = get_radio_button_value("new_game_mode");
+    if (mode == "user_vs_computer")
+	mode = "user vs computer";
+    else if (mode == "user_vs_user")
+	mode = "user vs user";
+    else
+	console.warn("Unrecognized mode value.");
 
-    listener.new_game_onclick(color);
+    listener.new_game_onclick(color, mode);
 }
 
 function square_onclick(id) {

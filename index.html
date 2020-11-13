@@ -16,14 +16,21 @@
       <!-- drawn by chess.js -->
     </div>
 
-    <form id="new_game_form">
+    <div id="new_game_form">
       <input type="radio" id="new_game_white" name="new_game_color"
 	     value="white" checked="checked">
       <label for="white">White</label><br>
       <input type="radio" id="new_game_black" name="new_game_color" value="black">
       <label for="black">Black</label><br>
-      <button type="submit">New Game</button>
-    </form> 
+
+      <input type="radio" id="new_game_user_vs_computer" name="new_game_mode"
+	     value="user_vs_computer" checked="checked">
+      <label for="user_vs_computer">User vs. Computer</label><br>
+      <input type="radio" id="new_game_user_vs_user" name="new_game_mode" value="user_vs_user">
+      <label for="user_vs_user">User vs. User</label><br>
+
+      <button id="new_game_button">New Game</button>
+    </div> 
     
     <button id="toggle_orientation_button">Toggle Orientation</button>
 
@@ -39,7 +46,7 @@
 	  toggle_orientation_onclick,
       } from "/js/view.js";
 
-      document.getElementById("new_game_form").addEventListener("submit", new_game_onclick);      
+      document.getElementById("new_game_button").addEventListener("click", new_game_onclick);
       document.getElementById("toggle_orientation_button").addEventListener("click",
 									    toggle_orientation_onclick);
     </script>

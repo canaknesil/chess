@@ -10,13 +10,20 @@ var selected_game = null;
 
 
 var new_game_id_count = 0;
-function new_game(color) {
+function new_game(color, mode) {
+    // Clean from previous game
+    unmark_all();
+    
     // Initializations
-    var game = Model.make_game("Game " + new_game_id_count.toString(), "user vs computer", color);
+    var game = Model.make_game("Game " + new_game_id_count.toString(), mode, color);
     games.push(game);
     selected_game = game;
 
-    View.set_orientation(color);
+    if (mode == "user vs computer") {
+	View.set_orientation(color);
+    } else
+	View.set_orientation("W");
+    
     var position = Model.game_get_position(selected_game);
     View.update_from_position(position);
 
@@ -31,11 +38,19 @@ function get_current_position() {
 }
 
 
-var selected_square = null;
-var previous_src_square = null;
+var selected_square      = null;
+var previous_src_square  = null;
 var previous_dest_square = null;
-var current_src_square = null;
-var current_desk_square = null;
+var current_src_square   = null;
+var current_desk_square  = null;
+
+function unmark_all() {
+    if (selected_square     ) { View.unmark_square(...selected_square     ); selected_square      = null; }	
+    if (previous_src_square ) { View.unmark_square(...previous_src_square ); previous_src_square  = null; }	
+    if (previous_dest_square) { View.unmark_square(...previous_dest_square); previous_dest_square = null; }	
+    if (current_src_square  ) { View.unmark_square(...current_src_square  ); current_src_square   = null; }	
+    if (current_desk_square ) { View.unmark_square(...current_desk_square ); current_desk_square  = null; }	
+}
 
 function opponent_perform_move() {
     Model.game_opponent_perform_move(selected_game, function post_move_cb(from, to) {
