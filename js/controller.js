@@ -10,12 +10,19 @@ var selected_game = null;
 
 
 var new_game_id_count = 0;
-function new_game() {
-    var game = Model.make_game("Game " + new_game_id_count.toString());
+function new_game(color) {
+    // Initializations
+    var game = Model.make_game("Game " + new_game_id_count.toString(), "user vs computer", color);
     games.push(game);
     selected_game = game;
+
+    View.set_orientation(color);
     var position = Model.game_get_position(selected_game);
     View.update_from_position(position);
+
+    // First move from computer
+    if (selected_game.mode == "user vs computer" && selected_game.user_color == "B")
+	opponent_perform_move();
 }
 
 
@@ -29,6 +36,14 @@ var previous_src_square = null;
 var previous_dest_square = null;
 var current_src_square = null;
 var current_desk_square = null;
+
+function opponent_perform_move() {
+    Model.game_opponent_perform_move(selected_game, function post_move_cb(from, to) {
+	console.log("Opponent moving " + Util.position_index_to_name(...from) + " -> " + Util.position_index_to_name(...to));
+	select_square(...from);
+	post_move(from, to);
+    });
+}
 
 function post_move(from, to, opponent=false) {
     var [x, y] = to;
@@ -46,13 +61,10 @@ function post_move(from, to, opponent=false) {
     View.perform_move(from, to, true, function() {
 	View.update_from_position(Model.game_get_position(selected_game));
 
-	// TODO: Game mode should be checked here.
-	if (opponent) {
-	    Model.game_opponent_perform_move(selected_game, function post_move_cb(from, to) {
-		console.log("Opponent moving " + Util.position_index_to_name(...from) + " -> " + Util.position_index_to_name(...to));
-		select_square(...from);
-		post_move(from, to);
-	    });
+	if (selected_game.mode == "user vs computer") {
+	    if (opponent) {
+		opponent_perform_move();
+	    }
 	}
 	    
     });

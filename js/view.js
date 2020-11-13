@@ -49,6 +49,16 @@ var listener = null; // Set by controller.
 })();
 
 
+function set_orientation(new_orientation) {
+    if (new_orientation == "W")
+	orientation = "W";
+    else if (new_orientation == "B")
+	orientation = "B";
+    else
+	console.warn("Bad orientation value.");
+}
+
+
 function board_coordinates(x, y) {
     return (orientation == "W" ? [x, y] : [7 - x, 7 - y])
 }
@@ -190,7 +200,23 @@ function update_gui() {
 // Input from user
 
 function new_game_onclick() {
-    listener.new_game_onclick();
+    var colors = document.getElementsByName('new_game_color');
+    var color = null;
+    for (var i=0; i<colors.length; i++) {
+	if (colors[i].checked) {
+	    color = colors[i].value;
+	}
+    }
+    
+    if (color == "white")
+	color = "W";
+    else if (color == "black")
+	color = "B";
+    else if (color == null) {}
+    else
+	console.warn("Unrecognized color value.");
+
+    listener.new_game_onclick(color);
 }
 
 function square_onclick(id) {
@@ -221,6 +247,7 @@ export {
     mark_square,
     is_square_marked,
     unmark_square,
+    set_orientation,
     new_game_onclick,
     square_onclick,
     toggle_orientation_onclick
