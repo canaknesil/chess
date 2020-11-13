@@ -65,6 +65,15 @@ function board_coordinates(x, y) {
 }
 
 
+function toggle_orientation() {
+    if (orientation == "W")
+	orientation = "B";
+    else
+	orientation = "W";
+    update_gui();
+}
+
+
 function new_piece(piece_type, x, y) {
     var img = document.createElementNS(svg_ns, "image");
     img.setAttribute("href", "/images/pieces/classic/" + piece_type + ".svg");
@@ -133,6 +142,7 @@ function remove_piece(x, y) {
 	position[x][y] = null;
     }
 }
+
 
 function update_from_position(new_position) {
     console.log("update_from_position");
@@ -240,11 +250,7 @@ function square_onclick(id) {
 }
 
 function toggle_orientation_onclick() {
-    if (orientation == "W")
-	orientation = "B";
-    else
-	orientation = "W";
-    update_gui();
+    toggle_orientation();
 }
 
 

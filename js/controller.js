@@ -103,19 +103,21 @@ function select_square(x, y) {
 
 function click_square(x, y) {
     // move piece
-    var piece = Model.game_get_position(selected_game)[x][y];
-    if (piece && Model.game_get_turn(selected_game) == piece[0]) {
-	// Select / unselect square
-	if (current_src_square && Util.array_equal(current_src_square, [x, y])) {
-	    View.unmark_square(...current_src_square);
-	    current_src_square = null;
-	} else {
-	    select_square(x, y);
-	}
-    } else if (current_src_square) {
-	// Move piece
-	if (Model.game_perform_move(selected_game, current_src_square, [x, y])) {
-	    post_move(current_src_square, [x, y], true);
+    if (!(selected_game.mode == "user vs computer" && Model.game_get_turn(selected_game) != selected_game.user_color)) {
+	var piece = Model.game_get_position(selected_game)[x][y];
+	if (piece && Model.game_get_turn(selected_game) == piece[0]) {
+	    // Select / unselect square
+	    if (current_src_square && Util.array_equal(current_src_square, [x, y])) {
+		View.unmark_square(...current_src_square);
+		current_src_square = null;
+	    } else {
+		select_square(x, y);
+	    }
+	} else if (current_src_square) {
+	    // Move piece
+	    if (Model.game_perform_move(selected_game, current_src_square, [x, y])) {
+		post_move(current_src_square, [x, y], true);
+	    }
 	}
     }
 
