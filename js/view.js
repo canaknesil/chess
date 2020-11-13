@@ -56,6 +56,7 @@ function set_orientation(new_orientation) {
 	orientation = "B";
     else
 	console.warn("Bad orientation value.");
+    update_gui();
 }
 
 
@@ -186,7 +187,7 @@ function update_gui() {
 	    // Update piece positions
 	    if (position[i][j] != null) {
 		var piece = position[i][j];
-		move_piece(piece, i, j, false);
+		move_piece(piece, i, j, false, false);
 	    }
 	    // Update markings
 	    if (markings[i][j])
