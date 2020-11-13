@@ -86,6 +86,15 @@ function position_name_to_index(square_name) {
 }
 
 
+function position_move_to_index(move) {
+    var from = move.substr(0, 2);
+    var to = move.substr(2, 4);
+    from = position_name_to_index(from);
+    to = position_name_to_index(to);
+    return [from, to];
+}
+
+
 
 
 export {
@@ -97,7 +106,8 @@ export {
     position_get_piece_by_index,
     position_get_piece_by_name,
     position_index_to_name,
-    position_name_to_index    
+    position_name_to_index,
+    position_move_to_index
 };
 
 console.log("UTIL LOADED.");

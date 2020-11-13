@@ -261,7 +261,7 @@ class Stockfish {
 
     perform_analysis() {
 	var this_obj = this;
-	return this.post("go depth 2", "bestmove").then(function(messages) {
+	return this.post("go depth 10", "bestmove").then(function(messages) {
 	    var len = messages.length;
 	    console.assert(len >= this_obj.number_of_lines + 1);
 	    var info_msgs = messages.slice(len - 1 - this_obj.number_of_lines, len - 1);

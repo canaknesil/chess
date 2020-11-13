@@ -30,6 +30,38 @@ var previous_dest_square = null;
 var current_src_square = null;
 var current_desk_square = null;
 
+function post_move(from, to, opponent=false) {
+    var [x, y] = to;
+    var [prev_x, prev_y] = from;
+    
+    current_desk_square = [x, y];
+    
+    if (previous_src_square)
+	View.unmark_square(...previous_src_square);
+    if (previous_dest_square)
+	View.unmark_square(...previous_dest_square);
+    View.mark_square(...from);
+    View.mark_square(...to);
+    
+    View.perform_move(from, to, true, function() {
+	View.update_from_position(Model.game_get_position(selected_game));
+
+	// TODO: Game mode should be checked here.
+	if (opponent) {
+	    Model.game_opponent_perform_move(selected_game, function post_move_cb(from, to) {
+		console.log("Opponent moving " + Util.position_index_to_name(...from) + " -> " + Util.position_index_to_name(...to));
+		post_move(from, to);
+	    });
+	}
+	    
+    });
+    
+    previous_src_square = current_src_square;
+    previous_dest_square = current_desk_square;
+    current_src_square = null;
+    current_desk_square = null;
+}
+
 function click_square(x, y) {
     // move piece
     var piece = Model.game_get_position(selected_game)[x][y];
@@ -49,23 +81,7 @@ function click_square(x, y) {
     } else if (current_src_square) {
 	// Move piece
 	if (Model.game_perform_move(selected_game, current_src_square, [x, y])) {
-	    current_desk_square = [x, y];
-	    
-	    if (previous_src_square)
-		View.unmark_square(...previous_src_square);
-	    if (previous_dest_square)
-		View.unmark_square(...previous_dest_square);
-	    View.mark_square(...current_desk_square);
-	    View.mark_square(...current_src_square);
-	    
-	    View.perform_move(current_src_square, current_desk_square, true, function() {
-		View.update_from_position(Model.game_get_position(selected_game));
-	    });
-
-	    previous_src_square = current_src_square;
-	    previous_dest_square = current_desk_square;
-	    current_src_square = null;
-	    current_desk_square = null;
+	    post_move(current_src_square, [x, y], true);
 	}
     }
 

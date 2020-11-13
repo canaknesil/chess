@@ -36,13 +36,25 @@ function make_game(name) {
 	.init()
 	.then(() => analysis_engine.set_start_position());
 
-    var mode = "user vs user";
+    //var mode = "user vs user";
+    var mode = "user vs computer";
+
+    var opponent_engine = null;
+    var opponent_engine_pc = null;
+    if (mode == "user vs computer") {
+	opponent_engine = new Sfd.Stockfish("opponent", null, 1);
+	opponent_engine_pc = opponent_engine
+	    .init()
+	    .then(() => opponent_engine.set_start_position());
+    }
     
     return {name: name,
 	    chess: chess,
 	    game_flow: game_flow,
 	    analysis_engine: analysis_engine,
 	    analysis_engine_pc: analysis_engine_pc,
+	    opponent_engine: opponent_engine,
+	    opponent_engine_pc: opponent_engine_pc,
 	    mode: mode};
 }
 
@@ -60,33 +72,65 @@ function game_get_position(game) {
     return position;
 }
 
-function game_perform_move_backup(game, from, to) {
-    var moves = game.chess.moves({verbose: true});
-    var from_name = Util.position_index_to_name(...from);
-    var to_name = Util.position_index_to_name(...to);
-    var is_valid = false;
-    for (var i=0; i<moves.length; i++) {
-	if (moves[i].from == from_name && moves[i].to == to_name)
-	    is_valid = true;
-    }
-    //console.log(is_valid);
+// function game_perform_move_backup(game, from, to) {
+//     var moves = game.chess.moves({verbose: true});
+//     var from_name = Util.position_index_to_name(...from);
+//     var to_name = Util.position_index_to_name(...to);
+//     var is_valid = false;
+//     for (var i=0; i<moves.length; i++) {
+// 	if (moves[i].from == from_name && moves[i].to == to_name)
+// 	    is_valid = true;
+//     }
+//     //console.log(is_valid);
 
+//     if (is_valid) {
+// 	console.log("Performing move " + from + " -> " + to);
+// 	game.chess.move({from: from_name, to: to_name});
+//     }
+//     return is_valid;
+// }
+
+function game_perform_move(game, from, to) {
+    var nfrom = Util.position_index_to_name(...from);
+    var nto = Util.position_index_to_name(...to);
+    var is_valid = game.chess.move({from: nfrom, to: nto});
+    //console.log(is_valid);
     if (is_valid) {
-	console.log("Performing move " + from + " -> " + to);
-	game.chess.move({from: from_name, to: to_name});
+	console.log("Performing move " + nfrom + " -> " + nto);
+	var engine_from = from;
+	var engine_to = to;
+
+	// TODO: Right now I am assuming engine is black.
+	engine_from = [engine_from[0], 7-engine_from[1]];
+	engine_to = [engine_to[0], 7-engine_to[1]];
+
+	var nfrom = Util.position_index_to_name(...engine_from);
+	var nto = Util.position_index_to_name(...engine_to);
+	var move = nfrom + nto;
+
+	game.analysis_engine_pc = game.analysis_engine_pc.then(() => {
+	    game.analysis_engine.perform_moves(move);
+	});
+	game.opponent_engine_pc = game.opponent_engine_pc.then(() => {
+	    game.opponent_engine.perform_moves(move);
+	});
     }
     return is_valid;
 }
 
-function game_perform_move(game, from, to) {
-    var from = Util.position_index_to_name(...from);
-    var to = Util.position_index_to_name(...to);
-    var is_valid = game.chess.move({from: from, to: to});
-    //console.log(is_valid);
-    if (is_valid) {
-	console.log("Performing move " + from + " -> " + to);
-    }
-    return is_valid;
+
+function game_opponent_perform_move(game, post_move_cb) {
+    game.opponent_engine_pc = game.opponent_engine_pc.then(() => {
+	return game.opponent_engine.perform_analysis();
+    }).then((info_msgs) => {
+	var bestmove = info_msgs[0].pv[0];
+	var [from, to] = Util.position_move_to_index(bestmove);
+	from = [from[0], 7 - from[1]];
+	to = [to[0], 7 - to[1]];
+	game_perform_move(game, from, to);
+	if (post_move_cb)
+	    post_move_cb(from, to);
+    });
 }
 
 
@@ -99,6 +143,7 @@ export {
     make_game,
     game_get_position,
     game_perform_move,
+    game_opponent_perform_move,
     game_get_turn
 };
 

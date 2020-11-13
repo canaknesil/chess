@@ -6,6 +6,8 @@ TODO:
 Store last move in game flow. Display it with update_gui and
 update_gui_from_position.
 
+Limit opponent engine's strength. 
+
 Ideas:
 
 Find and load chess PGN. Explanations for many chess position. Display
