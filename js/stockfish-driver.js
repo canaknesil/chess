@@ -255,7 +255,13 @@ class Stockfish {
     
 
     perform_moves(moves) {
-	return this.post("position moves " + moves);
+	// TODO
+	//return this.post("position moves " + moves);
+    }
+
+
+    set_position_with_fen(fen) {
+	return this.post("position fen " + fen);
     }
     
 

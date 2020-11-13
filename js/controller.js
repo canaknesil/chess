@@ -50,6 +50,7 @@ function post_move(from, to, opponent=false) {
 	if (opponent) {
 	    Model.game_opponent_perform_move(selected_game, function post_move_cb(from, to) {
 		console.log("Opponent moving " + Util.position_index_to_name(...from) + " -> " + Util.position_index_to_name(...to));
+		select_square(...from);
 		post_move(from, to);
 	    });
 	}
@@ -62,6 +63,17 @@ function post_move(from, to, opponent=false) {
     current_desk_square = null;
 }
 
+function select_square(x, y) {
+    if (current_src_square) {
+	View.unmark_square(...current_src_square);
+	View.mark_square(x, y);
+	current_src_square = [x, y];
+    } else {
+	View.mark_square(x, y);
+	current_src_square = [x, y];
+    }
+}
+
 function click_square(x, y) {
     // move piece
     var piece = Model.game_get_position(selected_game)[x][y];
@@ -70,13 +82,8 @@ function click_square(x, y) {
 	if (current_src_square && Util.array_equal(current_src_square, [x, y])) {
 	    View.unmark_square(...current_src_square);
 	    current_src_square = null;
-	} else if (current_src_square) {
-	    View.unmark_square(...current_src_square);
-	    View.mark_square(x, y);
-	    current_src_square = [x, y];
 	} else {
-	    View.mark_square(x, y);
-	    current_src_square = [x, y];
+	    select_square(x, y);
 	}
     } else if (current_src_square) {
 	// Move piece

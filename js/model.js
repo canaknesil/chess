@@ -97,22 +97,14 @@ function game_perform_move(game, from, to) {
     //console.log(is_valid);
     if (is_valid) {
 	console.log("Performing move " + nfrom + " -> " + nto);
-	var engine_from = from;
-	var engine_to = to;
 
-	// TODO: Right now I am assuming engine is black.
-	engine_from = [engine_from[0], 7-engine_from[1]];
-	engine_to = [engine_to[0], 7-engine_to[1]];
-
-	var nfrom = Util.position_index_to_name(...engine_from);
-	var nto = Util.position_index_to_name(...engine_to);
-	var move = nfrom + nto;
-
+	var fen = game.chess.fen();
+	
 	game.analysis_engine_pc = game.analysis_engine_pc.then(() => {
-	    game.analysis_engine.perform_moves(move);
+	    game.analysis_engine.set_position_with_fen(fen);
 	});
 	game.opponent_engine_pc = game.opponent_engine_pc.then(() => {
-	    game.opponent_engine.perform_moves(move);
+	    game.opponent_engine.set_position_with_fen(fen);
 	});
     }
     return is_valid;
@@ -125,8 +117,7 @@ function game_opponent_perform_move(game, post_move_cb) {
     }).then((info_msgs) => {
 	var bestmove = info_msgs[0].pv[0];
 	var [from, to] = Util.position_move_to_index(bestmove);
-	from = [from[0], 7 - from[1]];
-	to = [to[0], 7 - to[1]];
+
 	game_perform_move(game, from, to);
 	if (post_move_cb)
 	    post_move_cb(from, to);
