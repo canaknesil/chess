@@ -139,10 +139,11 @@ class Stockfish {
     }
 
     
-    constructor(engine_id, update_info_cb, number_of_lines=1) {
+    constructor(engine_id, update_info_cb, number_of_lines=1, elo=null) {
 	this.engine_id = engine_id;
 	this.update_info_cb = update_info_cb;
 	this.number_of_lines = number_of_lines;
+	this.elo = elo;
 
 	this.engine = new Worker("/js/stockfish.asm.js");
 	this.post_queue = []; // push expected response in post, pop in on message.
@@ -212,6 +213,13 @@ class Stockfish {
 
 	if (this.number_of_lines > 1)
 	    pc = pc.then(() => this.post("setoption name MultiPV value " + this_obj.number_of_lines));
+	if (this.elo) {
+	    console.warn("UCI_Elo not implemented");
+	    // pc = pc.then(() => {
+	    // 	this.post("setoption name UCI_LimitStrength value true");
+	    // 	this.post("setoption name UCI_Elo value " + this_obj.elo);
+	    // });
+	}
 	
 	pc = pc.then(() => this.post("isready", "readyok"));
 	pc = pc.then(function(messages) {
@@ -265,10 +273,12 @@ class Stockfish {
     }
     
 
-    perform_analysis() {
+    perform_analysis(depth=10) {
 	var this_obj = this;
-	return this.post("go depth 10", "bestmove").then(function(messages) {
+	return this.post("go depth " + depth, "bestmove").then(function(messages) {
 	    var len = messages.length;
+	    //console.log(messages);
+	    //console.log(this_obj.number_of_lines + 1);
 	    console.assert(len >= this_obj.number_of_lines + 1);
 	    var info_msgs = messages.slice(len - 1 - this_obj.number_of_lines, len - 1);
 	    var bestmove_msg = messages[len-1];

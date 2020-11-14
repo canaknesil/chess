@@ -260,6 +260,16 @@ function add_listener(new_listener) {
 }
 
 
+//
+// Analysis
+//
+
+function update_score(score, line) {
+    if (line == 0)
+	document.getElementById("score").innerHTML = score;
+}
+
+
 export {
     add_listener,
     update_from_position,
@@ -270,7 +280,8 @@ export {
     set_orientation,
     new_game_onclick,
     square_onclick,
-    toggle_orientation_onclick
+    toggle_orientation_onclick,
+    update_score
 };
 
 

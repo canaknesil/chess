@@ -1,5 +1,5 @@
 :root {
-    --body-background-color: #222222;
+    --body-background-color: #aaaaaa;
     --light-square-background-color: #ddddbb;
     --dark-square-background-color: #779900;
     --square-mark-color: yellow;
@@ -11,6 +11,19 @@ body {
     margin: 8px;
     overflow: hidden;
     background-color: var(--body-background-color);
+}
+
+#control {
+    /* float: left; */
+    /* width: 20%; */
+}
+
+#analysis {
+
+}
+
+#board {
+    float: left;
 }
 
 

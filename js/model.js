@@ -22,16 +22,12 @@ function game_flow_get_fen(game_flow) {
 // GAME
 //
 
-function update_analysis_info_cb(info) {
-    console.log("Model: update_analysis_info_cb");
-}
-
 // Name does not have to be unique.
-function make_game(name, mode, user_color) {
+function make_game(name, mode, user_color, update_info_cb) {
     var chess = new Chess();
     var game_flow = make_game_flow(chess.fen());
 
-    var analysis_engine = new Sfd.Stockfish("analyzer", update_analysis_info_cb, 3);
+    var analysis_engine = new Sfd.Stockfish("analyzer", update_info_cb, 3);
     var analysis_engine_pc = analysis_engine
 	.init()
 	.then(() => analysis_engine.set_start_position());
@@ -101,7 +97,7 @@ function game_perform_move(game, from, to) {
 
 function game_opponent_perform_move(game, post_move_cb) {
     game.opponent_engine_pc = game.opponent_engine_pc.then(() => {
-	return game.opponent_engine.perform_analysis();
+	return game.opponent_engine.perform_analysis(2);
     }).then((info_msgs) => {
 	var bestmove = info_msgs[0].pv[0];
 	var [from, to] = Util.position_move_to_index(bestmove);
@@ -109,6 +105,13 @@ function game_opponent_perform_move(game, post_move_cb) {
 	game_perform_move(game, from, to);
 	if (post_move_cb)
 	    post_move_cb(from, to);
+    });
+}
+
+
+function game_perform_analysis(game) {
+    game.analysis_engine_pc = game.analysis_engine_pc.then(() => {
+	game.analysis_engine.perform_analysis();
     });
 }
 
@@ -123,7 +126,8 @@ export {
     game_get_position,
     game_perform_move,
     game_opponent_perform_move,
-    game_get_turn
+    game_get_turn,
+    game_perform_analysis
 };
 
 console.log("MODEL LOADED.");

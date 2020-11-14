@@ -15,7 +15,7 @@ function new_game(color, mode) {
     unmark_all();
     
     // Initializations
-    var game = Model.make_game("Game " + new_game_id_count.toString(), mode, color);
+    var game = Model.make_game("Game " + new_game_id_count.toString(), mode, color, update_info_cb);
     games.push(game);
     selected_game = game;
 
@@ -88,6 +88,8 @@ function post_move(from, to, opponent=false) {
     previous_dest_square = current_desk_square;
     current_src_square = null;
     current_desk_square = null;
+
+    Model.game_perform_analysis(selected_game);
 }
 
 function select_square(x, y) {
@@ -142,3 +144,13 @@ View.add_listener({
 });
 
 console.log("CONTROLLER LOADED.");
+
+
+//
+// Analysis
+//
+
+function update_info_cb(info) {
+    //console.log(info);
+    View.update_score(parseInt(info.cp), parseInt(info.multipv) - 1);
+}
