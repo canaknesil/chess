@@ -30,13 +30,17 @@
 	<input type="radio" id="new_game_user_vs_user" name="new_game_mode" value="user_vs_user">
 	<label for="user_vs_user">User vs. User</label><br>
 
-	<!-- <input type="number" id="quantity" name="quantity" min="1" max="5"> -->
-	<!-- <label for="quantity">Quantity (between 1 and 5):</label> -->
+	<label for="new_game_opponent_depth">Opponent engine thinking depth (1-20)</label>
+	<input type="number" id="new_game_opponent_depth"
+	       name="new_game_opponent_depth" min="1" max="20" value="3">
 
 	<button id="new_game_button">New Game</button>
       </div> 
       
-      <button id="toggle_orientation_button">Toggle Orientation</button>
+      <button id="toggle_orientation_button">Toggle
+	Orientation</button>
+      <button id="game_flow_back_button">Back</button>
+      <button id="game_flow_forward_button">Forward</button>
     </div>
 
     <div id="analysis">
@@ -52,11 +56,17 @@
       import {
 	  new_game_onclick,
 	  toggle_orientation_onclick,
+	  back_onclick,
+	  forward_onclick
       } from "/js/view.js";
 
       document.getElementById("new_game_button").addEventListener("click", new_game_onclick);
       document.getElementById("toggle_orientation_button").addEventListener("click",
 									    toggle_orientation_onclick);
+      document.getElementById("game_flow_back_button").addEventListener("click",
+									back_onclick);
+      document.getElementById("game_flow_forward_button").addEventListener("click",
+									   forward_onclick);;
     </script>
 
     <script src="/js/test.js" type="module"></script>

@@ -10,12 +10,12 @@ var selected_game = null;
 
 
 var new_game_id_count = 0;
-function new_game(color, mode) {
+function new_game(color, mode, opponent_depth) {
     // Clean from previous game
     unmark_all();
     
     // Initializations
-    var game = Model.make_game("Game " + new_game_id_count.toString(), mode, color, update_info_cb);
+    var game = Model.make_game("Game " + new_game_id_count.toString(), mode, color, update_info_cb, opponent_depth);
     games.push(game);
     selected_game = game;
 
@@ -24,12 +24,13 @@ function new_game(color, mode) {
     } else
 	View.set_orientation("W");
     
-    var position = Model.game_get_position(selected_game);
-    View.update_from_position(position);
+    View.update_from_position(get_current_position());
 
     // First move from computer
     if (selected_game.mode == "user vs computer" && selected_game.user_color == "B")
 	opponent_perform_move();
+    else
+	Model.game_perform_analysis(selected_game);
 }
 
 
@@ -138,9 +139,24 @@ function click_square(x, y) {
 }
 
 
+function back_onclick() {
+    console.log("BACK");
+    Model.game_back(selected_game);
+    View.update_from_position(get_current_position());
+}
+
+function forward_onclick() {
+    console.log("FORWARD");
+    Model.game_forward(selected_game);
+    View.update_from_position(get_current_position());
+}
+
+
 View.add_listener({
     new_game_onclick: new_game,
-    square_onclick: click_square
+    square_onclick: click_square,
+    back_onclick: back_onclick,
+    forward_onclick: forward_onclick
 });
 
 console.log("CONTROLLER LOADED.");

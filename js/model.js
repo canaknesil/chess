@@ -8,8 +8,9 @@ import * as Sfd from "./stockfish-driver.js";
 
 function make_game_flow(fen) {
     var root_node = {past_node: null,
-		     future_nodes: [],
-		     fen: fen};
+		     future_nodes: [], // first one is the selected_future
+		     fen: fen,
+		     last_move: null};
     return {root_node: root_node,
 	    selected_node: root_node};
 }
@@ -18,12 +19,37 @@ function game_flow_get_fen(game_flow) {
     return game_flow.selected_node.fen;
 }
 
+function game_flow_get_last_move(game_flow) {
+    return game_flow.last_move;
+}
+
+function game_flow_back(game_flow) {
+    if (game_flow.selected_node.past_node) {
+	game_flow.selected_node = game_flow.selected_node.past_node;
+    }
+}
+
+function game_flow_forward(game_flow) {
+    if (game_flow.selected_node.future_nodes.length >= 1) {
+	game_flow.selected_node = game_flow.selected_node.future_nodes[0];
+    }
+}
+
+function game_flow_new_node(game_flow, fen, last_move) {
+    var new_node = {past_node: game_flow.selected_node,
+		    future_nodes: [],
+		    fen: fen,
+		    last_move: last_move};
+    game_flow.selected_node.future_nodes.unshift(new_node); // Add to the beginning.
+    game_flow.selected_node = new_node;
+}
+
 //
 // GAME
 //
 
 // Name does not have to be unique.
-function make_game(name, mode, user_color, update_info_cb) {
+function make_game(name, mode, user_color, update_info_cb, opponent_depth) {
     var chess = new Chess();
     var game_flow = make_game_flow(chess.fen());
 
@@ -54,7 +80,8 @@ function make_game(name, mode, user_color, update_info_cb) {
 	    opponent_engine: opponent_engine,
 	    opponent_engine_pc: opponent_engine_pc,
 	    mode: mode,
-	    user_color: user_color};
+	    user_color: user_color,
+	    opponent_depth: opponent_depth};
 }
 
 function game_get_position(game) {
@@ -72,6 +99,38 @@ function game_get_position(game) {
 }
 
 
+function game_set_fen(game, fen) {
+    game.chess.load(fen);
+    
+    game.analysis_engine_pc = game.analysis_engine_pc.then(() => {
+	game.analysis_engine.set_position_with_fen(fen);
+    });
+    
+    if (game.opponent_engine) {
+	game.opponent_engine_pc = game.opponent_engine_pc.then(() => {
+	    game.opponent_engine.set_position_with_fen(fen);
+	});
+    }
+}
+
+
+function game_get_last_move(game) {
+    return game_flow_get_last_move(game.game_flow);
+}
+
+
+function game_back(game) {
+    game_flow_back(game.game_flow);
+    game_set_fen(game, game_flow_get_fen(game.game_flow));
+}
+
+
+function game_forward(game) {
+    game_flow_forward(game.game_flow);
+    game_set_fen(game, game_flow_get_fen(game.game_flow));
+}
+
+
 function game_perform_move(game, from, to) {
     var nfrom = Util.position_index_to_name(...from);
     var nto = Util.position_index_to_name(...to);
@@ -81,15 +140,9 @@ function game_perform_move(game, from, to) {
 	console.log("Performing move " + nfrom + " -> " + nto);
 
 	var fen = game.chess.fen();
-	
-	game.analysis_engine_pc = game.analysis_engine_pc.then(() => {
-	    game.analysis_engine.set_position_with_fen(fen);
-	});
-	if (game.opponent_engine) {
-	    game.opponent_engine_pc = game.opponent_engine_pc.then(() => {
-		game.opponent_engine.set_position_with_fen(fen);
-	    });
-	}
+	game_set_fen(game, fen);
+
+	game_flow_new_node(game.game_flow, fen, {from: from, to: to});
     }
     return is_valid;
 }
@@ -97,7 +150,7 @@ function game_perform_move(game, from, to) {
 
 function game_opponent_perform_move(game, post_move_cb) {
     game.opponent_engine_pc = game.opponent_engine_pc.then(() => {
-	return game.opponent_engine.perform_analysis(2);
+	return game.opponent_engine.perform_analysis(game.opponent_depth);
     }).then((info_msgs) => {
 	var bestmove = info_msgs[0].pv[0];
 	var [from, to] = Util.position_move_to_index(bestmove);
@@ -127,7 +180,10 @@ export {
     game_perform_move,
     game_opponent_perform_move,
     game_get_turn,
-    game_perform_analysis
+    game_perform_analysis,
+    game_back,
+    game_forward,
+    game_get_last_move
 };
 
 console.log("MODEL LOADED.");

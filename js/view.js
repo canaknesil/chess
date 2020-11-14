@@ -240,7 +240,9 @@ function new_game_onclick() {
     else
 	console.warn("Unrecognized mode value.");
 
-    listener.new_game_onclick(color, mode);
+    var opponent_depth = parseInt(document.getElementById("new_game_opponent_depth").value);
+
+    listener.new_game_onclick(color, mode, opponent_depth);
 }
 
 function square_onclick(id) {
@@ -251,6 +253,14 @@ function square_onclick(id) {
 
 function toggle_orientation_onclick() {
     toggle_orientation();
+}
+
+function back_onclick() {
+    listener.back_onclick();
+}
+
+function forward_onclick() {
+    listener.forward_onclick();
 }
 
 
@@ -281,6 +291,8 @@ export {
     new_game_onclick,
     square_onclick,
     toggle_orientation_onclick,
+    back_onclick,
+    forward_onclick,
     update_score
 };
 

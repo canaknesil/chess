@@ -1,12 +1,11 @@
 BUG:
 
+Update marked squares after back and forward. Write a small interface
+to View for move marking (encapsulate square marking process).
+
 
 TODO:
 
-Store last move in game flow. Display it with update_gui and
-update_gui_from_position.
-
-Limit opponent engine's strength. 
 
 Ideas:
 
@@ -33,7 +32,7 @@ Display the captured piece if one was captured during last move.
 
 Display all captured piece.
 
-Display squre coordinates.
+Display square coordinates.
 
 Display who's turn is it.
 
