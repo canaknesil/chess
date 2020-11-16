@@ -37,6 +37,9 @@ function new_game(color, mode, opponent_depth) {
 function get_current_position() {
     return Model.game_get_position(selected_game);
 }
+function get_last_move() {
+    return Model.game_get_last_move(selected_game);
+}
 
 
 var selected_square      = null;
@@ -170,3 +173,36 @@ function update_info_cb(info) {
     //console.log(info);
     View.update_score(parseInt(info.cp), parseInt(info.multipv) - 1);
 }
+
+
+//
+// A little bit logic to View
+//
+
+function update_gui() {
+    update_gui_position(get_current_position());
+    update_gui_last_move(get_last_move());
+}
+
+function update_gui_position(position) {
+    View.update_from_position(position);
+}
+
+function update_gui_last_move(last_move) {
+    if (last_move) {
+	View.mark_square(last_move.from);
+	View.mark_square(last_move.to);
+    } else {
+	View.unmark_square(last_move.from);
+	View.unmark_square(last_move.to);
+    }
+}
+
+function update_gui_selected_square(selected_square) {
+    if (selected_square)
+	View.mark_square(select_square);
+    else
+	View.unmark_square(selected_square);
+}
+
+
