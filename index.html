@@ -6,69 +6,56 @@
 
     <title>Chess</title>
     <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
-    
+
     <link rel="stylesheet" href="/css/board.css">
 
   </head>
   <body>
 
-    <div id="board">
-      <!-- drawn by chess.js -->
+    <div id="game_content">
+      <div id="board">
+	<!-- drawn by view.js -->
+      </div>
+
+      <div id="side-pannel">
+	<div id="control">
+	  <div id="new_game_form">
+	    <input type="radio" id="new_game_white" name="new_game_color"
+		   value="white" checked="checked">
+	    <label for="white">White</label><br>
+	    <input type="radio" id="new_game_black" name="new_game_color" value="black">
+	    <label for="black">Black</label><br>
+	    
+	    <input type="radio" id="new_game_user_vs_computer" name="new_game_mode"
+		   value="user_vs_computer" checked="checked">
+	    <label for="user_vs_computer">User vs. Computer</label><br>
+	    <input type="radio" id="new_game_user_vs_user" name="new_game_mode" value="user_vs_user">
+	    <label for="user_vs_user">User vs. User</label><br>
+	    
+	    <label for="new_game_opponent_depth">Opponent engine thinking depth (1-20)</label>
+	    <input type="number" id="new_game_opponent_depth"
+		   name="new_game_opponent_depth" min="1" max="20" value="3">
+	    
+	    <button id="new_game_button">New Game</button>
+	  </div> 
+	  
+	  <button id="toggle_orientation_button">Toggle
+	    Orientation</button>
+	  <button id="game_flow_back_button">Back</button>
+	  <button id="game_flow_forward_button">Forward</button>
+	</div>
+	
+	<div id="analysis">
+	  <p>Score: <span id="score"></span></p>
+	</div>
+      </div>
     </div>
 
-    <div id="control">
-      <div id="new_game_form">
-	<input type="radio" id="new_game_white" name="new_game_color"
-	       value="white" checked="checked">
-	<label for="white">White</label><br>
-	<input type="radio" id="new_game_black" name="new_game_color" value="black">
-	<label for="black">Black</label><br>
-
-	<input type="radio" id="new_game_user_vs_computer" name="new_game_mode"
-	       value="user_vs_computer" checked="checked">
-	<label for="user_vs_computer">User vs. Computer</label><br>
-	<input type="radio" id="new_game_user_vs_user" name="new_game_mode" value="user_vs_user">
-	<label for="user_vs_user">User vs. User</label><br>
-
-	<label for="new_game_opponent_depth">Opponent engine thinking depth (1-20)</label>
-	<input type="number" id="new_game_opponent_depth"
-	       name="new_game_opponent_depth" min="1" max="20" value="3">
-
-	<button id="new_game_button">New Game</button>
-      </div> 
-      
-      <button id="toggle_orientation_button">Toggle
-	Orientation</button>
-      <button id="game_flow_back_button">Back</button>
-      <button id="game_flow_forward_button">Forward</button>
-    </div>
-
-    <div id="analysis">
-      <p>Score: <span id="score"></span></p>
-    </div>
-    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="/js/chess.js"></script>
     <script src="/js/velocity.min.js"></script>
+    
     <script src="/js/controller.js" type="module"></script>
-
-    <script type="module">
-      // Adding event listeners this way because functions are defined in another module.
-      import {
-	  new_game_onclick,
-	  toggle_orientation_onclick,
-	  back_onclick,
-	  forward_onclick
-      } from "/js/view.js";
-
-      document.getElementById("new_game_button").addEventListener("click", new_game_onclick);
-      document.getElementById("toggle_orientation_button").addEventListener("click",
-									    toggle_orientation_onclick);
-      document.getElementById("game_flow_back_button").addEventListener("click",
-									back_onclick);
-      document.getElementById("game_flow_forward_button").addEventListener("click",
-									   forward_onclick);;
-    </script>
-
     <script src="/js/test.js" type="module"></script>
     
   </body>

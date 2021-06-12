@@ -6,33 +6,27 @@
 }
 
 body {
-    height: calc(100vh - 16px);
-    width: calc(100vw - 16px);
-    margin: 8px;
-    overflow: hidden;
+    margin: 0px;
     background-color: var(--body-background-color);
 }
 
-#control {
-    /* float: left; */
-    /* width: 20%; */
-}
-
-#analysis {
-
-}
-
-#board {
-    float: left;
-}
-
-
 /* board */
 
-#board {
-    width: 80%;
-    height: 80%;
+#game_content {
     display: flex;
+}
+
+#board {
+    width: 90vh;
+    margin:20px;
+}
+
+#chessboard-svg {
+    box-shadow: 0 0 20px 0px black;
+}
+
+#side-pannel {
+    margin: 20px;
 }
 
 .square-light {
